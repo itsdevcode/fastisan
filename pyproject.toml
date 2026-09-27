@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "fastisan"
+version = "0.1.0"
+description = "A powerful CLI for generating production-ready FastAPI components, project structures, and boilerplate."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Arun Yadav" }
+]
+keywords = [
+    "fastapi",
+    "cli",
+    "scaffolding",
+    "code-generator",
+    "python",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Code Generators",
+]
+dependencies = [
+    "typer>=0.12",
+]
+
+[project.scripts]
+fastisan = "fastisan.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/itsdevcode/fastisan"
+Repository = "https://github.com/itsdevcode/fastisan"
+Issues = "https://github.com/itsdevcode/fastisan/issues"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]

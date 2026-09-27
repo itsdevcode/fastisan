@@ -1,0 +1,3 @@
+.venv/
+src/fastisan.egg-info/
+src/fastisan/__pycache__/
