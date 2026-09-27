@@ -1,3 +1,44 @@
+# Virtual environments
 .venv/
-src/fastisan.egg-info/
-src/fastisan/__pycache__/
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checking / linting
+.mypy_cache/
+.ruff_cache/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
