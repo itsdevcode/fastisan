@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import TypedDict, cast
-import tomllib
+import tomli
 
 
 CONFIG_FILENAME = "fastisan.toml"
@@ -50,7 +50,7 @@ def read_project_config() -> FastisanConfig:
         )
 
     with config_path.open("rb") as file:
-        config = tomllib.load(file)
+        config = tomli.load(file)
 
     project = config.get("project")
 
