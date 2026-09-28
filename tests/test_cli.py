@@ -30,6 +30,12 @@ def test_init_command(
     assert 'orm = "sqlalchemy"' in config_path.read_text(
         encoding="utf-8"
     )
+    base_path = tmp_path / "app" / "db" / "base.py"
+
+    assert base_path.exists()
+
+    base_content = base_path.read_text(encoding="utf-8")
+    assert "class Base(DeclarativeBase):" in base_content
 
 
 def test_init_command_does_not_overwrite(
@@ -54,3 +60,61 @@ def test_init_command_does_not_overwrite(
 
     assert second_result.exit_code == 1
     assert "already initialized" in second_result.output
+
+def test_make_model_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    init_result = runner.invoke(app, ["init"], input="1\n")
+    assert init_result.exit_code == 0
+
+    result = runner.invoke(app, ["make:model", "User"])
+
+    assert result.exit_code == 0
+    assert "Model created" in result.stdout
+
+    model_path = tmp_path / "app" / "models" / "user.py"
+
+    assert model_path.exists()
+    assert "class User(Base):" in model_path.read_text(encoding="utf-8")
+
+
+def test_make_model_requires_initialized_project(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["make:model", "User"])
+
+    assert result.exit_code == 1
+    assert "not initialized" in result.output
+
+
+def test_make_model_rejects_project_without_orm(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    init_result = runner.invoke(app, ["init"], input="2\n")
+    assert init_result.exit_code == 0
+
+    result = runner.invoke(app, ["make:model", "User"])
+
+    assert result.exit_code == 1
+    assert "requires an ORM" in result.output
+
+def test_init_without_orm_does_not_create_database_foundation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["init"], input="2\n")
+
+    assert result.exit_code == 0
+    assert (tmp_path / "fastisan.toml").exists()
+    assert not (tmp_path / "app" / "db" / "base.py").exists()
