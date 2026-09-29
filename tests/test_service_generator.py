@@ -5,7 +5,10 @@ import pytest
 from fastisan.generators.service import ServiceGenerator
 
 
-def test_service_generator_creates_service_without_schema(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_service_generator_creates_service_without_schema(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     generator = ServiceGenerator()
@@ -21,7 +24,10 @@ def test_service_generator_creates_service_without_schema(tmp_path: Path, monkey
     assert "pass" in content
 
 
-def test_service_generator_creates_service_with_schema(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_service_generator_creates_service_with_schema(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.chdir(tmp_path)
     
     # Create a mock schema file so the generator detects it
@@ -35,7 +41,10 @@ def test_service_generator_creates_service_with_schema(tmp_path: Path, monkeypat
     content = file_path.read_text(encoding="utf-8")
 
     assert "class UserService:" in content
-    assert "async def list(self) -> List[UserResponse]:" in content
+    assert "async def list(self) -> list[UserResponse]:" in content
+    assert "async def detail(self, id: int) -> UserResponse | None:" in content
+    assert "async def create(self, data: UserCreate) -> UserResponse:" in content
+    assert "raise NotImplementedError" in content
     assert "from app.schemas.user import UserCreate, UserResponse, UserUpdate" in content
 
 
