@@ -12,6 +12,7 @@ from fastisan.generators.model.factory import generate_model
 from fastisan.generators.router import generate_router
 from fastisan.generators.schema import generate_schema
 from fastisan.generators.service import generate_service
+from fastisan.generators.repository import generate_repository
 
 app = typer.Typer()
 ORM_OPTIONS = {
@@ -105,3 +106,17 @@ def make_service(name: str) -> None:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=1)
     typer.echo(f"Service created: {file_path}")
+
+
+@app.command("make:repository")
+def make_repository(name: str) -> None:
+    """Create a new repository class."""
+    try:
+        config = read_project_config()
+        orm = config["project"]["orm"]
+        file_path = generate_repository(name, orm)
+    except (FileNotFoundError, FileExistsError, ValueError) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1)
+    typer.echo(f"Repository created: {file_path}")
+

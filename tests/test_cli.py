@@ -189,3 +189,45 @@ def test_make_service_command_does_not_overwrite(
 
     assert second_result.exit_code == 1
     assert "File already exists" in second_result.output
+
+
+def test_make_repository_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    init_result = runner.invoke(app, ["init"], input="1\n")
+    assert init_result.exit_code == 0
+
+    result = runner.invoke(app, ["make:repository", "User"])
+
+    assert result.exit_code == 0
+    assert "Repository created" in result.stdout
+
+    repo_path = tmp_path / "app" / "repositories" / "user.py"
+
+    assert repo_path.exists()
+
+    content = repo_path.read_text(encoding="utf-8")
+    assert "class UserRepository:" in content
+
+
+def test_make_repository_command_does_not_overwrite(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    init_result = runner.invoke(app, ["init"], input="1\n")
+    assert init_result.exit_code == 0
+
+    first_result = runner.invoke(app, ["make:repository", "User"])
+
+    assert first_result.exit_code == 0
+
+    second_result = runner.invoke(app, ["make:repository", "User"])
+
+    assert second_result.exit_code == 1
+    assert "File already exists" in second_result.output
+
