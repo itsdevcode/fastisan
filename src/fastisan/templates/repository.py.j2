@@ -1,0 +1,45 @@
+{% if orm == 'sqlalchemy' and model_exists %}
+from typing import Any
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.{{ snake_name }} import {{ name }}
+
+
+class {{ name }}Repository:
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def list(self) -> list[{{ name }}]:
+        result = await self.session.execute(select({{ name }}))
+        return list(result.scalars().all())
+
+    async def detail(self, id: int) -> {{ name }} | None:
+        return await self.session.get({{ name }}, id)
+
+    async def create(self, **kwargs: Any) -> {{ name }}:
+        db_obj = {{ name }}(**kwargs)
+        self.session.add(db_obj)
+        await self.session.commit()
+        await self.session.refresh(db_obj)
+        return db_obj
+
+    async def update(
+        self,
+        db_obj: {{ name }},
+        **kwargs: Any,
+    ) -> {{ name }}:
+        for key, value in kwargs.items():
+            setattr(db_obj, key, value)
+        await self.session.commit()
+        await self.session.refresh(db_obj)
+        return db_obj
+
+    async def delete(self, db_obj: {{ name }}) -> None:
+        await self.session.delete(db_obj)
+        await self.session.commit()
+{% else %}
+class {{ name }}Repository:
+    pass
+{% endif %}
