@@ -11,6 +11,7 @@ from fastisan.generators.database.factory import (
 from fastisan.generators.model.factory import generate_model
 from fastisan.generators.router import generate_router
 from fastisan.generators.schema import generate_schema
+from fastisan.generators.service import generate_service
 
 app = typer.Typer()
 ORM_OPTIONS = {
@@ -93,3 +94,14 @@ def make_schema(name: str) -> None:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=1)
     typer.echo(f"Schema created: {file_path}")
+
+
+@app.command("make:service")
+def make_service(name: str) -> None:
+    """Create a new service class."""
+    try:
+        file_path = generate_service(name)
+    except FileExistsError as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1)
+    typer.echo(f"Service created: {file_path}")

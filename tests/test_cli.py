@@ -154,3 +154,38 @@ def test_make_schema_command_does_not_overwrite(
 
     assert second_result.exit_code == 1
     assert "File already exists" in second_result.output
+
+
+def test_make_service_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["make:service", "User"])
+
+    assert result.exit_code == 0
+    assert "Service created" in result.stdout
+
+    service_path = tmp_path / "app" / "services" / "user.py"
+
+    assert service_path.exists()
+
+    content = service_path.read_text(encoding="utf-8")
+    assert "class UserService:" in content
+
+
+def test_make_service_command_does_not_overwrite(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    first_result = runner.invoke(app, ["make:service", "User"])
+
+    assert first_result.exit_code == 0
+
+    second_result = runner.invoke(app, ["make:service", "User"])
+
+    assert second_result.exit_code == 1
+    assert "File already exists" in second_result.output

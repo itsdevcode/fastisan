@@ -1,0 +1,27 @@
+{% if schema_exists %}
+from app.schemas.{{ snake_name }} import {{ name }}Create, {{ name }}Response, {{ name }}Update
+
+
+class {{ name }}Service:
+    async def list(self) -> list[{{ name }}Response]:
+        raise NotImplementedError
+
+    async def detail(self, id: int) -> {{ name }}Response | None:
+        raise NotImplementedError
+
+    async def create(self, data: {{ name }}Create) -> {{ name }}Response:
+        raise NotImplementedError
+
+    async def update(
+        self,
+        id: int,
+        data: {{ name }}Update,
+    ) -> {{ name }}Response | None:
+        raise NotImplementedError
+
+    async def delete(self, id: int) -> bool:
+        raise NotImplementedError
+{% else %}
+class {{ name }}Service:
+    pass
+{% endif %}
