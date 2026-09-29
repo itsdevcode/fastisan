@@ -10,6 +10,7 @@ from fastisan.generators.database.factory import (
 )
 from fastisan.generators.model.factory import generate_model
 from fastisan.generators.router import generate_router
+from fastisan.generators.schema import generate_schema
 
 app = typer.Typer()
 ORM_OPTIONS = {
@@ -80,5 +81,15 @@ def make_model(name: str) -> None:
     except (FileNotFoundError, FileExistsError, ValueError) as error:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=1)
-
     typer.echo(f"Model created: {file_path}")
+
+
+@app.command("make:schema")
+def make_schema(name: str) -> None:
+    """Create a new Pydantic schema."""
+    try:
+        file_path = generate_schema(name)
+    except FileExistsError as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1)
+    typer.echo(f"Schema created: {file_path}")

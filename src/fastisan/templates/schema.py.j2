@@ -1,0 +1,17 @@
+from pydantic import BaseModel, ConfigDict
+
+
+class {{ name }}Base(BaseModel):
+    pass
+
+
+class {{ name }}Create({{ name }}Base):
+    pass
+
+
+class {{ name }}Update({{ name }}Base):
+    pass
+
+
+class {{ name }}Response({{ name }}Base):
+    model_config = ConfigDict(from_attributes=True)

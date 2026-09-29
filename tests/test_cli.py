@@ -118,3 +118,39 @@ def test_init_without_orm_does_not_create_database_foundation(
     assert result.exit_code == 0
     assert (tmp_path / "fastisan.toml").exists()
     assert not (tmp_path / "app" / "db" / "base.py").exists()
+
+def test_make_schema_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["make:schema", "User"])
+
+    assert result.exit_code == 0
+    assert "Schema created" in result.stdout
+
+    schema_path = tmp_path / "app" / "schemas" / "user.py"
+
+    assert schema_path.exists()
+
+    content = schema_path.read_text(encoding="utf-8")
+    assert "class UserBase(BaseModel):" in content
+    assert "class UserCreate(UserBase):" in content
+    assert "class UserUpdate(UserBase):" in content
+    assert "class UserResponse(UserBase):" in content
+
+def test_make_schema_command_does_not_overwrite(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    first_result = runner.invoke(app, ["make:schema", "User"])
+
+    assert first_result.exit_code == 0
+
+    second_result = runner.invoke(app, ["make:schema", "User"])
+
+    assert second_result.exit_code == 1
+    assert "File already exists" in second_result.output
