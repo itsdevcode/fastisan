@@ -14,8 +14,7 @@ class ResourceGenerator:
             raise ValueError(
                 "Resource generation requires an ORM. Current project ORM is set to 'none'."
             )
-            
-        if orm not in ["sqlalchemy"]:
+        if orm != "sqlalchemy":
             raise ValueError(f"Unsupported ORM: {orm}")
 
         class_name = to_pascal_case(name)
