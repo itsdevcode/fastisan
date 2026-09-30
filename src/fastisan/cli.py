@@ -13,6 +13,7 @@ from fastisan.generators.router import generate_router
 from fastisan.generators.schema import generate_schema
 from fastisan.generators.service import generate_service
 from fastisan.generators.repository import generate_repository
+from fastisan.generators.middleware import generate_middleware
 
 app = typer.Typer()
 ORM_OPTIONS = {
@@ -119,4 +120,15 @@ def make_repository(name: str) -> None:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=1)
     typer.echo(f"Repository created: {file_path}")
+
+
+@app.command("make:middleware")
+def make_middleware(name: str) -> None:
+    """Create a new ASGI middleware."""
+    try:
+        file_path = generate_middleware(name)
+    except FileExistsError as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1)
+    typer.echo(f"Middleware created: {file_path}")
 
