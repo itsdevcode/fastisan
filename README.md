@@ -184,7 +184,7 @@ Generates an ORM-aware repository for the model (requires an ORM to be configure
 fastisan make:service User
 ```
 
-Generates a service layer class for the model.
+Generates a service layer class for the model. When generated as part of a complete resource (or when the corresponding repository exists), the service will automatically integrate with and delegate to the repository.
 
 ### Generate a Resource
 

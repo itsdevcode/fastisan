@@ -1,4 +1,62 @@
-{% if schema_exists %}
+{% if schema_exists and repository_exists %}
+from app.repositories.{{ snake_name }} import {{ name }}Repository
+from app.schemas.{{ snake_name }} import {{ name }}Create, {{ name }}Response, {{ name }}Update
+
+
+class {{ name }}Service:
+    def __init__(self, repository: {{ name }}Repository) -> None:
+        self.repository = repository
+
+    async def list(self) -> list[{{ name }}Response]:
+        db_objects = await self.repository.list()
+
+        return [
+            {{ name }}Response.model_validate(db_obj)
+            for db_obj in db_objects
+        ]
+
+    async def detail(self, id: int) -> {{ name }}Response | None:
+        db_obj = await self.repository.detail(id)
+
+        if db_obj is None:
+            return None
+
+        return {{ name }}Response.model_validate(db_obj)
+
+    async def create(self, data: {{ name }}Create) -> {{ name }}Response:
+        db_obj = await self.repository.create(
+            **data.model_dump()
+        )
+
+        return {{ name }}Response.model_validate(db_obj)
+
+    async def update(
+        self,
+        id: int,
+        data: {{ name }}Update,
+    ) -> {{ name }}Response | None:
+        db_obj = await self.repository.detail(id)
+
+        if db_obj is None:
+            return None
+
+        updated_obj = await self.repository.update(
+            db_obj,
+            **data.model_dump(exclude_unset=True),
+        )
+
+        return {{ name }}Response.model_validate(updated_obj)
+
+    async def delete(self, id: int) -> bool:
+        db_obj = await self.repository.detail(id)
+
+        if db_obj is None:
+            return False
+
+        await self.repository.delete(db_obj)
+
+        return True
+{% elif schema_exists %}
 from app.schemas.{{ snake_name }} import {{ name }}Create, {{ name }}Response, {{ name }}Update
 
 

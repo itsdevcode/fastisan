@@ -16,6 +16,9 @@ class ServiceGenerator:
         schema_path = Path.cwd() / "app" / "schemas" / f"{snake_name}.py"
         schema_exists = schema_path.exists()
 
+        repository_path = Path.cwd() / "app" / "repositories" / f"{snake_name}.py"
+        repository_exists = repository_path.exists()
+
         return self.generator.generate(
             template_name="service.py.j2",
             destination=destination,
@@ -23,6 +26,7 @@ class ServiceGenerator:
                 "name": class_name,
                 "snake_name": snake_name,
                 "schema_exists": schema_exists,
+                "repository_exists": repository_exists,
             },
         )
 
