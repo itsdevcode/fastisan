@@ -270,3 +270,38 @@ def test_make_repository_rejects_project_without_orm(
     assert result.exit_code == 1
     assert "requires an ORM" in result.output
 
+
+def test_make_middleware_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["make:middleware", "User"])
+
+    assert result.exit_code == 0
+    assert "Middleware created" in result.stdout
+
+    middleware_path = tmp_path / "app" / "middleware" / "user.py"
+
+    assert middleware_path.exists()
+
+    content = middleware_path.read_text(encoding="utf-8")
+    assert "class UserMiddleware:" in content
+
+
+def test_make_middleware_command_does_not_overwrite(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    first_result = runner.invoke(app, ["make:middleware", "User"])
+
+    assert first_result.exit_code == 0
+
+    second_result = runner.invoke(app, ["make:middleware", "User"])
+
+    assert second_result.exit_code == 1
+    assert "File already exists" in second_result.output
+

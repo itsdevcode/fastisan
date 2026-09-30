@@ -18,6 +18,7 @@ Fastisan currently supports:
 - Pydantic schema generation
 - Service generation
 - ORM-aware repository generation
+- ASGI middleware generation
 - Automatic Python class-name normalization
 - Automatic snake_case file naming
 - Automatic pluralized SQLAlchemy table names
@@ -184,6 +185,20 @@ fastisan make:service User
 
 Generates a service layer class for the model.
 
+### Generate a Middleware
+
+```bash
+fastisan make:middleware Auth
+```
+
+Generates a generic pass-through ASGI middleware:
+
+```text
+app/
+└── middleware/
+    └── auth.py
+```
+
 ## ORM Support
 
 Current ORM support:
@@ -207,7 +222,6 @@ The current focus is establishing a reliable foundation before expanding the gen
 
 Potential future capabilities include:
 
-- Middleware generation
 - Resource generation
 - Complete FastAPI project scaffolding
 - Additional ORM integrations
