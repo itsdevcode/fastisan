@@ -15,6 +15,9 @@ Fastisan currently supports:
 - SQLAlchemy project foundation generation
 - FastAPI router generation
 - ORM-aware model generation
+- Pydantic schema generation
+- Service generation
+- ORM-aware repository generation
 - Automatic Python class-name normalization
 - Automatic snake_case file naming
 - Automatic pluralized SQLAlchemy table names
@@ -157,6 +160,30 @@ class BlogPost(Base):
     __tablename__ = "blog_posts"
 ```
 
+### Generate a Schema
+
+```bash
+fastisan make:schema User
+```
+
+Generates a Pydantic schema file for the model.
+
+### Generate a Repository
+
+```bash
+fastisan make:repository User
+```
+
+Generates an ORM-aware repository for the model (requires an ORM to be configured and the model file to exist).
+
+### Generate a Service
+
+```bash
+fastisan make:service User
+```
+
+Generates a service layer class for the model.
+
 ## ORM Support
 
 Current ORM support:
@@ -180,9 +207,6 @@ The current focus is establishing a reliable foundation before expanding the gen
 
 Potential future capabilities include:
 
-- Schema generation
-- Service generation
-- Repository generation
 - Middleware generation
 - Resource generation
 - Complete FastAPI project scaffolding
