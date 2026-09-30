@@ -14,6 +14,7 @@ from fastisan.generators.schema import generate_schema
 from fastisan.generators.service import generate_service
 from fastisan.generators.repository import generate_repository
 from fastisan.generators.middleware import generate_middleware
+from fastisan.generators.resource import generate_resource
 
 app = typer.Typer()
 ORM_OPTIONS = {
@@ -131,4 +132,21 @@ def make_middleware(name: str) -> None:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=1)
     typer.echo(f"Middleware created: {file_path}")
+
+
+@app.command("make:resource")
+def make_resource(name: str) -> None:
+    """Create a complete FastAPI resource scaffold."""
+    try:
+        config = read_project_config()
+        orm = config["project"]["orm"]
+        paths = generate_resource(name, orm)
+    except (FileNotFoundError, FileExistsError, ValueError) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1)
+
+    typer.echo(f"Resource created: {name}")
+
+    for path in paths:
+        typer.echo(f"Created: {path}")
 

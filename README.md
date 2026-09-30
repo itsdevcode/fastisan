@@ -18,6 +18,7 @@ Fastisan currently supports:
 - Pydantic schema generation
 - Service generation
 - ORM-aware repository generation
+- Complete resource scaffolding
 - ASGI middleware generation
 - Automatic Python class-name normalization
 - Automatic snake_case file naming
@@ -184,6 +185,22 @@ fastisan make:service User
 ```
 
 Generates a service layer class for the model.
+
+### Generate a Resource
+
+```bash
+fastisan make:resource User
+```
+
+Generates a complete resource scaffold safely:
+
+```text
+app/models/user.py
+app/schemas/user.py
+app/repositories/user.py
+app/services/user.py
+app/routers/user.py
+```
 
 ### Generate a Middleware
 

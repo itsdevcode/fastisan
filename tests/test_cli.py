@@ -305,3 +305,80 @@ def test_make_middleware_command_does_not_overwrite(
     assert second_result.exit_code == 1
     assert "File already exists" in second_result.output
 
+
+def test_make_resource_command_success(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    init_result = runner.invoke(app, ["init"], input="1\n")
+    assert init_result.exit_code == 0
+
+    result = runner.invoke(app, ["make:resource", "User"])
+    assert result.exit_code == 0
+    assert "Resource created: User" in result.stdout
+    assert "Created: " in result.stdout
+
+    assert (tmp_path / "app" / "models" / "user.py").exists()
+    assert (tmp_path / "app" / "schemas" / "user.py").exists()
+    assert (tmp_path / "app" / "repositories" / "user.py").exists()
+    assert (tmp_path / "app" / "services" / "user.py").exists()
+    assert (tmp_path / "app" / "routers" / "user.py").exists()
+
+
+def test_make_resource_uninitialized(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    result = runner.invoke(app, ["make:resource", "User"])
+    assert result.exit_code == 1
+    assert "not initialized" in result.output
+
+
+def test_make_resource_orm_none(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    init_result = runner.invoke(app, ["init"], input="2\n")
+    assert init_result.exit_code == 0
+
+    result = runner.invoke(app, ["make:resource", "User"])
+    assert result.exit_code == 1
+    assert "requires an ORM" in result.output
+
+
+def test_make_resource_existing_component(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    init_result = runner.invoke(app, ["init"], input="1\n")
+    assert init_result.exit_code == 0
+
+    services_dir = tmp_path / "app" / "services"
+    services_dir.mkdir(parents=True, exist_ok=True)
+    (services_dir / "user.py").touch()
+
+    result = runner.invoke(app, ["make:resource", "User"])
+    assert result.exit_code == 1
+    assert "Resource components already exist" in result.output
+
+    assert not (tmp_path / "app" / "models" / "user.py").exists()
+
+
+def test_make_resource_duplicate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    init_result = runner.invoke(app, ["init"], input="1\n")
+    assert init_result.exit_code == 0
+
+    first_result = runner.invoke(app, ["make:resource", "User"])
+    assert first_result.exit_code == 0
+
+    second_result = runner.invoke(app, ["make:resource", "User"])
+    assert second_result.exit_code == 1
+    assert "Resource components already exist" in second_result.output
