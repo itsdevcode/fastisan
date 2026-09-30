@@ -14,7 +14,7 @@ class SQLAlchemyRepositoryGenerator:
 
         destination = Path.cwd() / "app" / "repositories" / f"{snake_name}.py"
         model_path = Path.cwd() / "app" / "models" / f"{snake_name}.py"
-
+        
         if not model_path.exists():
             message = (
                 f"Model file not found: {model_path}. "
@@ -28,5 +28,7 @@ class SQLAlchemyRepositoryGenerator:
             context={
                 "name": class_name,
                 "snake_name": snake_name,
+                "orm": "sqlalchemy",
+                "model_exists": True,
             },
         )
