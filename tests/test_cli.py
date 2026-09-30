@@ -200,6 +200,10 @@ def test_make_repository_command(
     init_result = runner.invoke(app, ["init"], input="1\n")
     assert init_result.exit_code == 0
 
+    model_dir = tmp_path / "app" / "models"
+    model_dir.mkdir(parents=True, exist_ok=True)
+    (model_dir / "user.py").touch()
+
     result = runner.invoke(app, ["make:repository", "User"])
 
     assert result.exit_code == 0
@@ -222,6 +226,10 @@ def test_make_repository_command_does_not_overwrite(
     init_result = runner.invoke(app, ["init"], input="1\n")
     assert init_result.exit_code == 0
 
+    model_dir = tmp_path / "app" / "models"
+    model_dir.mkdir(parents=True, exist_ok=True)
+    (model_dir / "user.py").touch()
+
     first_result = runner.invoke(app, ["make:repository", "User"])
 
     assert first_result.exit_code == 0
@@ -230,4 +238,35 @@ def test_make_repository_command_does_not_overwrite(
 
     assert second_result.exit_code == 1
     assert "File already exists" in second_result.output
+
+
+def test_make_repository_requires_model(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    init_result = runner.invoke(app, ["init"], input="1\n")
+    assert init_result.exit_code == 0
+
+    result = runner.invoke(app, ["make:repository", "User"])
+
+    assert result.exit_code == 1
+    assert "Model file not found" in result.output
+    assert "fastisan make:model User" in result.output
+
+
+def test_make_repository_rejects_project_without_orm(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    init_result = runner.invoke(app, ["init"], input="2\n")
+    assert init_result.exit_code == 0
+
+    result = runner.invoke(app, ["make:repository", "User"])
+
+    assert result.exit_code == 1
+    assert "requires an ORM" in result.output
 
