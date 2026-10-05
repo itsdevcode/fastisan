@@ -34,7 +34,11 @@ def parse_fields(fields_str: str) -> tuple[FieldSpec, ...]:
         if ":" not in part:
             raise ValueError(f"Missing colon in field definition: {part}")
 
-        name, type_str = part.split(":", 1)
+        parts = part.split(":")
+        if len(parts) != 2:
+            raise ValueError(f"Malformed field definition (too many colons): {part}")
+
+        name, type_str = parts
         name = name.strip()
         type_str = type_str.strip()
 
