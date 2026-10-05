@@ -23,7 +23,7 @@ database foundations, and complete CRUD resources from the command line.
 
 Building scalable FastAPI applications often requires repetitive setup: defining SQLAlchemy models, Pydantic schemas, setting up a Repository pattern, creating Service layers for business logic, mapping them to Routers, and configuring Alembic migrations.
 
-**Fastisan** automates this entire process. With a single command, you can generate a robust, layered architecture for any resource, allowing you to focus on the actual business logic rather than writing boilerplate code.
+**Fastisan** automates much of this scaffolding process. With a single command, you can generate a robust, layered architecture for any resource, allowing you to focus on the actual business logic rather than writing boilerplate code.
 
 ---
 
@@ -50,20 +50,6 @@ fastisan init
 # 2. Scaffold a complete User resource with specific fields
 fastisan make:resource User \
   --fields "name:str,email:str,age:int?"
-```
-
-### The Terminal Experience
-
-```text
-$ fastisan make:resource User --fields "name:str,email:str,age:int?"
-
-Generating Model...
-Generating Schema...
-Generating Repository...
-Generating Service...
-Generating Router...
-
-✨ Successfully scaffolded User resource!
 ```
 
 ### What it Generates
@@ -111,7 +97,7 @@ app/
 | Command | Generates | Description |
 |---|---|---|
 | `fastisan init` | Application foundation | Sets up FastAPI, SQLAlchemy db config, Alembic migrations, and directory structure. |
-| `make:model` | SQLAlchemy model | Creates an async SQLAlchemy declarative base model. |
+| `make:model` | SQLAlchemy model | Creates a SQLAlchemy declarative model. |
 | `make:schema` | Pydantic schemas | Scaffolds Create, Update, and Response schemas for validation. |
 | `make:repository` | Async repository | Sets up the data access layer for CRUD operations. |
 | `make:service` | Service layer | Creates a service class for separating business logic from routers. |
@@ -160,12 +146,13 @@ Fastisan provides a variety of commands to streamline your workflow. You can vie
 - `fastisan make:repository <name>`: Generates an async repository class.
 - `fastisan make:service <name>`: Generates a business logic service layer.
 - `fastisan make:router <name>`: Generates a FastAPI APIRouter.
+- `fastisan make:middleware <name>`: Generates an ASGI middleware.
 
 ---
 
 ## 📦 Database & Alembic
 
-Fastisan relies on async SQLAlchemy and Alembic out of the box. The `fastisan init` command prepares everything you need to start migrating.
+When SQLAlchemy is selected, Fastisan generates async SQLAlchemy session wiring and an Alembic migration foundation. The `fastisan init` command prepares everything you need to start migrating.
 
 ```bash
 # After generating a new resource, create a migration
@@ -210,7 +197,7 @@ We welcome contributions! If you'd like to help improve Fastisan, please check o
 
 ## 👤 Author
 
-**Arun Yadav** - [itsdevcode@gmail.com](mailto:itsdevcode@gmail.com)
+**Arun Yadav** — [@itsdevcode](https://github.com/itsdevcode)
 
 ---
 
