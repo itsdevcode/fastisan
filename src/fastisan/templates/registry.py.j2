@@ -1,0 +1,18 @@
+# This file is managed by Fastisan.
+
+from fastapi import APIRouter
+{% if routers %}
+
+{% for module_name, router_alias in routers %}
+from app.routers.{{ module_name }} import router as {{ router_alias }}
+{% endfor %}
+{% endif %}
+
+
+router = APIRouter()
+{% if routers %}
+
+{% for module_name, router_alias in routers %}
+router.include_router({{ router_alias }})
+{% endfor %}
+{% endif %}

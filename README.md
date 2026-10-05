@@ -84,15 +84,31 @@ For example:
 orm = "sqlalchemy"
 ```
 
-When SQLAlchemy is selected, Fastisan also generates the database foundation:
+When SQLAlchemy is selected, Fastisan generates the application foundation, including database components:
 
 ```text
 app/
-└── db/
-    ├── base.py
-    └── session.py
+├── __init__.py
+├── main.py
+├── db/
+│   ├── __init__.py
+│   ├── base.py
+│   └── session.py
+├── models/
+│   └── __init__.py
+├── schemas/
+│   └── __init__.py
+├── repositories/
+│   └── __init__.py
+├── services/
+│   └── __init__.py
+└── routers/
+    ├── __init__.py
+    └── registry.py
 ```
 
+`app/main.py` is a minimal, runnable FastAPI application (once application dependencies like FastAPI itself are installed) with a `/health` endpoint.
+The `registry.py` file is deterministically managed by Fastisan and automatically aggregates all your generated routers.
 Fastisan generates a reusable async SQLAlchemy session dependency inside `session.py`. It expects a database connection string via the `DATABASE_URL` environment variable (e.g., `postgresql+asyncpg://...`).
 
 ### Generate a Router
@@ -200,6 +216,8 @@ app/repositories/user.py
 app/services/user.py
 app/routers/user.py
 ```
+
+After generating the resource, Fastisan automatically registers `user.py` into `app/routers/registry.py` so your main application immediately serves the new endpoints.
 
 The generated router is fully integrated with the service and repository layers, providing complete CRUD functionality out of the box. Because `init` generates the SQLAlchemy session foundation, `make:resource` automatically wires `AsyncSession`, the repository, and the service together in the router's dependency function.
 
