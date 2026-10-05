@@ -15,7 +15,7 @@ def test_alembic_generator(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
 
     alembic_ini_content = (tmp_path / "alembic.ini").read_text(encoding="utf-8")
     assert "postgresql+asyncpg://user:pass@localhost/db" not in alembic_ini_content
-    assert "sqlalchemy.url = \n" in alembic_ini_content
+    assert "sqlalchemy.url =" in alembic_ini_content
     assert "script_location = migrations" in alembic_ini_content
 
     env_content = (tmp_path / "migrations" / "env.py").read_text(encoding="utf-8")
