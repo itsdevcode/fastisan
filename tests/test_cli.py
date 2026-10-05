@@ -44,6 +44,18 @@ def test_init_command(
     assert "async def get_session" in session_content
     assert "DATABASE_URL = os.environ[\"DATABASE_URL\"]" in session_content
 
+    main_path = tmp_path / "app" / "main.py"
+    assert main_path.exists()
+    assert "from fastapi import FastAPI" in main_path.read_text(encoding="utf-8")
+
+    registry_path = tmp_path / "app" / "routers" / "registry.py"
+    assert registry_path.exists()
+    assert "router = APIRouter()" in registry_path.read_text(encoding="utf-8")
+
+    for pkg in ["", "models", "schemas", "repositories", "services", "routers", "db"]:
+        pkg_init = tmp_path / "app" / pkg / "__init__.py" if pkg else tmp_path / "app" / "__init__.py"
+        assert pkg_init.exists()
+
 
 def test_init_command_does_not_overwrite(
     tmp_path: Path,
@@ -67,6 +79,45 @@ def test_init_command_does_not_overwrite(
 
     assert second_result.exit_code == 1
     assert "already initialized" in second_result.output
+
+def test_make_router_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    init_result = runner.invoke(app, ["init"], input="1\n")
+    assert init_result.exit_code == 0
+
+    result = runner.invoke(app, ["make:router", "User"])
+
+    assert result.exit_code == 0
+    assert "Router created" in result.stdout
+
+    router_path = tmp_path / "app" / "routers" / "user.py"
+    assert router_path.exists()
+
+    registry_path = tmp_path / "app" / "routers" / "registry.py"
+    registry_content = registry_path.read_text(encoding="utf-8")
+    assert "from app.routers.user import router as user_router" in registry_content
+    assert "router.include_router(user_router)" in registry_content
+
+def test_make_router_command_uninitialized(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["make:router", "User"])
+
+    assert result.exit_code == 0
+    assert "Router created" in result.stdout
+
+    router_path = tmp_path / "app" / "routers" / "user.py"
+    assert router_path.exists()
+
+    registry_path = tmp_path / "app" / "routers" / "registry.py"
+    assert not registry_path.exists()
 
 def test_make_model_command(
     tmp_path: Path,
@@ -125,6 +176,9 @@ def test_init_without_orm_does_not_create_database_foundation(
     assert result.exit_code == 0
     assert (tmp_path / "fastisan.toml").exists()
     assert not (tmp_path / "app" / "db" / "base.py").exists()
+
+    assert (tmp_path / "app" / "main.py").exists()
+    assert (tmp_path / "app" / "routers" / "registry.py").exists()
 
 def test_make_schema_command(
     tmp_path: Path,
@@ -331,6 +385,11 @@ def test_make_resource_command_success(
     assert (tmp_path / "app" / "repositories" / "user.py").exists()
     assert (tmp_path / "app" / "services" / "user.py").exists()
     assert (tmp_path / "app" / "routers" / "user.py").exists()
+
+    registry_path = tmp_path / "app" / "routers" / "registry.py"
+    registry_content = registry_path.read_text(encoding="utf-8")
+    assert "from app.routers.user import router as user_router" in registry_content
+    assert "router.include_router(user_router)" in registry_content
 
 
 def test_make_resource_uninitialized(

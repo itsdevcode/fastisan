@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import cast
 import typer
 from fastisan.config.project import (
@@ -5,9 +6,8 @@ from fastisan.config.project import (
     get_config_path,
     read_project_config,
 )
-from fastisan.generators.database.factory import (
-    generate_database_foundation,
-)
+from fastisan.generators.application import ApplicationGenerator
+from fastisan.generators.registry import regenerate_router_registry
 from fastisan.generators.model.factory import generate_model
 from fastisan.generators.router import generate_router
 from fastisan.generators.schema import generate_schema
@@ -51,7 +51,7 @@ def init_project() -> None:
         raise typer.Exit(code=1)
 
     try:
-        _ = generate_database_foundation(orm)
+        _ = ApplicationGenerator().generate(orm)
         config_path = create_project_config(orm)
     except FileExistsError as error:
         typer.echo(f"Error: {error}", err=True)
@@ -72,6 +72,10 @@ def make_router(name: str) -> None:
     except FileExistsError as error:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=1)
+
+    registry_file = Path.cwd() / "app" / "routers" / "registry.py"
+    if registry_file.exists():
+        _ = regenerate_router_registry()
 
     typer.echo(f"Router created: {file_path}")
 
@@ -146,6 +150,10 @@ def make_resource(name: str) -> None:
         raise typer.Exit(code=1)
 
     typer.echo(f"Resource created: {name}")
+
+    registry_file = Path.cwd() / "app" / "routers" / "registry.py"
+    if registry_file.exists():
+        _ = regenerate_router_registry()
 
     for path in paths:
         typer.echo(f"Created: {path}")
