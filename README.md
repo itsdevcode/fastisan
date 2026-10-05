@@ -111,6 +111,16 @@ app/
 The `registry.py` file is deterministically managed by Fastisan and automatically aggregates all your generated routers.
 Fastisan generates a reusable async SQLAlchemy session dependency inside `session.py`. It expects a database connection string via the `DATABASE_URL` environment variable (e.g., `postgresql+asyncpg://...`).
 
+### Database Migration and Dependencies
+
+Fastisan generates the project foundation, but it does not manage your runtime dependencies. When scaffolding a SQLAlchemy project, ensure your project environment installs the required asynchronous driver, ORM, and migration tools:
+
+```bash
+pip install "sqlalchemy[asyncio]" alembic asyncpg
+```
+
+You must also configure your `DATABASE_URL` environment variable for migrations and application connectivity (e.g., `export DATABASE_URL="postgresql+asyncpg://user:pass@localhost/dbname"`).
+
 ### Generate a Router
 
 ```bash
