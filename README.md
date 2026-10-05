@@ -98,30 +98,16 @@ app/
 fastisan make:router User
 ```
 
-This generates:
+Generates a FastAPI router for the resource. 
 
-```text
-app/
-└── routers/
-    └── user.py
-```
+When the corresponding schema and service files exist, Fastisan automatically generates a service-aware CRUD router that:
+- Delegates application logic to the service layer
+- Handles HTTP 404 responses when resources are not found
+- Defines an explicit composition boundary via a `get_user_service` dependency function
 
-Example generated router:
+> **Note:** Fastisan does not currently generate the database connection, session management, or automatic dependency injection container. The generated router expects you to configure the `get_user_service` dependency to construct the service and its repository with an active session.
 
-```python
-from fastapi import APIRouter
-
-
-router = APIRouter(
-    prefix="/user",
-    tags=["User"],
-)
-
-
-@router.get("/")
-async def index():
-    return {"message": "User router"}
-```
+If the required components do not exist, a lightweight fallback router is generated instead.
 
 ### Generate a Model
 
@@ -201,6 +187,8 @@ app/repositories/user.py
 app/services/user.py
 app/routers/user.py
 ```
+
+The generated router is fully integrated with the service and repository layers, providing complete CRUD functionality out of the box, with an explicit dependency injection function left for your application-level wiring.
 
 ### Generate a Middleware
 
