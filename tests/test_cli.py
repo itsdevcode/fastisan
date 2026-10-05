@@ -56,6 +56,23 @@ def test_init_command(
         pkg_init = tmp_path / "app" / pkg / "__init__.py" if pkg else tmp_path / "app" / "__init__.py"
         assert pkg_init.exists()
 
+    alembic_ini_path = tmp_path / "alembic.ini"
+    assert alembic_ini_path.exists()
+    assert "script_location = migrations" in alembic_ini_path.read_text(encoding="utf-8")
+
+    env_path = tmp_path / "migrations" / "env.py"
+    assert env_path.exists()
+    assert "import app.models.registry" in env_path.read_text(encoding="utf-8")
+
+    script_path = tmp_path / "migrations" / "script.py.mako"
+    assert script_path.exists()
+
+    versions_path = tmp_path / "migrations" / "versions"
+    assert versions_path.exists()
+
+    model_registry_path = tmp_path / "app" / "models" / "registry.py"
+    assert model_registry_path.exists()
+
 
 def test_init_command_does_not_overwrite(
     tmp_path: Path,
@@ -138,6 +155,11 @@ def test_make_model_command(
     assert model_path.exists()
     assert "class User(Base):" in model_path.read_text(encoding="utf-8")
 
+    model_registry_path = tmp_path / "app" / "models" / "registry.py"
+    registry_content = model_registry_path.read_text(encoding="utf-8")
+    assert "from app.models.user import User" in registry_content
+    assert '"User",' in registry_content
+
 
 def test_make_model_requires_initialized_project(
     tmp_path: Path,
@@ -179,6 +201,9 @@ def test_init_without_orm_does_not_create_database_foundation(
 
     assert (tmp_path / "app" / "main.py").exists()
     assert (tmp_path / "app" / "routers" / "registry.py").exists()
+    assert not (tmp_path / "alembic.ini").exists()
+    assert not (tmp_path / "migrations" / "env.py").exists()
+    assert not (tmp_path / "app" / "models" / "registry.py").exists()
 
 def test_make_schema_command(
     tmp_path: Path,
@@ -390,6 +415,11 @@ def test_make_resource_command_success(
     registry_content = registry_path.read_text(encoding="utf-8")
     assert "from app.routers.user import router as user_router" in registry_content
     assert "router.include_router(user_router)" in registry_content
+
+    model_registry_path = tmp_path / "app" / "models" / "registry.py"
+    model_registry_content = model_registry_path.read_text(encoding="utf-8")
+    assert "from app.models.user import User" in model_registry_content
+    assert '"User",' in model_registry_content
 
 
 def test_make_resource_uninitialized(

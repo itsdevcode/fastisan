@@ -9,6 +9,7 @@ from fastisan.config.project import (
 from fastisan.generators.application import ApplicationGenerator
 from fastisan.generators.registry import regenerate_router_registry
 from fastisan.generators.model.factory import generate_model
+from fastisan.generators.model_registry import regenerate_model_registry
 from fastisan.generators.router import generate_router
 from fastisan.generators.schema import generate_schema
 from fastisan.generators.service import generate_service
@@ -90,6 +91,11 @@ def make_model(name: str) -> None:
     except (FileNotFoundError, FileExistsError, ValueError) as error:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=1)
+
+    registry_file = Path.cwd() / "app" / "models" / "registry.py"
+    if registry_file.exists():
+        _ = regenerate_model_registry()
+
     typer.echo(f"Model created: {file_path}")
 
 
@@ -162,6 +168,10 @@ def make_resource(
     registry_file = Path.cwd() / "app" / "routers" / "registry.py"
     if registry_file.exists():
         _ = regenerate_router_registry()
+
+    model_registry = Path.cwd() / "app" / "models" / "registry.py"
+    if model_registry.exists():
+        _ = regenerate_model_registry()
 
     for path in paths:
         typer.echo(f"Created: {path}")

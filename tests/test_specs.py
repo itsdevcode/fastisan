@@ -25,6 +25,10 @@ def test_parse_missing_name():
     with pytest.raises(ValueError, match="Missing field name"):
         parse_fields(":str")
 
+def test_parse_extra_colons():
+    with pytest.raises(ValueError, match="too many colons"):
+        parse_fields("name:str:extra")
+
 def test_parse_unsupported_type():
     with pytest.raises(ValueError, match="Unsupported field type: decimal"):
         parse_fields("price:decimal")
@@ -39,6 +43,9 @@ def test_parse_reserved_name():
     
     with pytest.raises(ValueError, match="Field name is reserved: created_at"):
         parse_fields("created_at:datetime")
+
+    with pytest.raises(ValueError, match="Field name is reserved: updated_at"):
+        parse_fields("updated_at:datetime")
 
 def test_parse_invalid_identifier():
     with pytest.raises(ValueError, match="Invalid field name: first-name"):

@@ -12,8 +12,14 @@ class ApplicationGenerator:
         
         main_destination = app_dir / "main.py"
         registry_destination = app_dir / "routers" / "registry.py"
-        
+
         conflicts = [p for p in (main_destination, registry_destination) if p.exists()]
+
+        if orm == "sqlalchemy":
+            alembic_ini = Path.cwd() / "alembic.ini"
+            env_py = Path.cwd() / "migrations" / "env.py"
+            conflicts.extend([p for p in (alembic_ini, env_py) if p.exists()])
+
         if conflicts:
             conflict_names = ", ".join(str(p) for p in conflicts)
             raise FileExistsError(f"Application foundation components already exist: {conflict_names}")
@@ -45,4 +51,10 @@ class ApplicationGenerator:
                 _ = init_file.write_text("", encoding="utf-8")
                 paths.append(init_file)
                 
+        if orm == "sqlalchemy":
+            from fastisan.generators.migration.alembic import generate_migration_foundation
+            from fastisan.generators.model_registry import regenerate_model_registry
+            paths.extend(generate_migration_foundation(orm))
+            paths.append(regenerate_model_registry())
+
         return paths
