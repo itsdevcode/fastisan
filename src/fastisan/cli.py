@@ -15,6 +15,7 @@ from fastisan.generators.service import generate_service
 from fastisan.generators.repository import generate_repository
 from fastisan.generators.middleware import generate_middleware
 from fastisan.generators.resource import generate_resource
+from fastisan.specs import ResourceSpec, parse_fields
 
 app = typer.Typer()
 ORM_OPTIONS = {
@@ -139,12 +140,19 @@ def make_middleware(name: str) -> None:
 
 
 @app.command("make:resource")
-def make_resource(name: str) -> None:
+def make_resource(
+    name: str,
+    fields: str = typer.Option("", help="Comma-separated field definitions (e.g. 'name:str,age:int?')"),
+) -> None:
     """Create a complete FastAPI resource scaffold."""
     try:
         config = read_project_config()
         orm = config["project"]["orm"]
-        paths = generate_resource(name, orm)
+
+        field_specs = parse_fields(fields)
+        resource_spec = ResourceSpec(name=name, fields=field_specs)
+
+        paths = generate_resource(resource_spec, orm)
     except (FileNotFoundError, FileExistsError, ValueError) as error:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=1)

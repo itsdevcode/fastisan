@@ -198,7 +198,7 @@ def test_make_schema_command(
     content = schema_path.read_text(encoding="utf-8")
     assert "class UserBase(BaseModel):" in content
     assert "class UserCreate(UserBase):" in content
-    assert "class UserUpdate(UserBase):" in content
+    assert "class UserUpdate(BaseModel):" in content
     assert "class UserResponse(UserBase):" in content
 
 def test_make_schema_command_does_not_overwrite(

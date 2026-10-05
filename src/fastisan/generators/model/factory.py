@@ -1,11 +1,12 @@
 from pathlib import Path
 
 from fastisan.generators.model.sqlalchemy import SQLAlchemyModelGenerator
+from fastisan.specs import FieldSpec
 
 
-def generate_model(name: str, orm: str) -> Path:
+def generate_model(name: str, orm: str, fields: tuple[FieldSpec, ...] | None = None) -> Path:
     if orm == "sqlalchemy":
-        return SQLAlchemyModelGenerator().generate(name)
+        return SQLAlchemyModelGenerator().generate(name, fields=fields)
 
     if orm == "none":
         message = (
