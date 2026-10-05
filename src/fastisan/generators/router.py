@@ -18,6 +18,8 @@ def generate_router(name: str) -> Path:
 
     schema_exists = (Path.cwd() / "app" / "schemas" / f"{snake_name}.py").exists()
     service_exists = (Path.cwd() / "app" / "services" / f"{snake_name}.py").exists()
+    repository_exists = (Path.cwd() / "app" / "repositories" / f"{snake_name}.py").exists()
+    session_exists = (Path.cwd() / "app" / "db" / "session.py").exists()
 
     generator = BaseGenerator()
 
@@ -30,5 +32,7 @@ def generate_router(name: str) -> Path:
             "plural_snake_name": plural_snake_name,
             "schema_exists": schema_exists,
             "service_exists": service_exists,
+            "repository_exists": repository_exists,
+            "session_exists": session_exists,
         },
     )

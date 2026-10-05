@@ -37,6 +37,13 @@ def test_init_command(
     base_content = base_path.read_text(encoding="utf-8")
     assert "class Base(DeclarativeBase):" in base_content
 
+    session_path = tmp_path / "app" / "db" / "session.py"
+    assert session_path.exists()
+
+    session_content = session_path.read_text(encoding="utf-8")
+    assert "async def get_session" in session_content
+    assert "DATABASE_URL = os.environ[\"DATABASE_URL\"]" in session_content
+
 
 def test_init_command_does_not_overwrite(
     tmp_path: Path,

@@ -5,7 +5,7 @@ from fastisan.generators.database.sqlalchemy import (
 )
 
 
-def generate_database_foundation(orm: str) -> Path | None:
+def generate_database_foundation(orm: str) -> list[Path] | None:
     if orm == "sqlalchemy":
         return SQLAlchemyDatabaseGenerator().generate()
 

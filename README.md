@@ -89,8 +89,11 @@ When SQLAlchemy is selected, Fastisan also generates the database foundation:
 ```text
 app/
 └── db/
-    └── base.py
+    ├── base.py
+    └── session.py
 ```
+
+Fastisan generates a reusable async SQLAlchemy session dependency inside `session.py`. It expects a database connection string via the `DATABASE_URL` environment variable (e.g., `postgresql+asyncpg://...`).
 
 ### Generate a Router
 
@@ -105,7 +108,17 @@ When the corresponding schema and service files exist, Fastisan automatically ge
 - Handles HTTP 404 responses when resources are not found
 - Defines an explicit composition boundary via a `get_user_service` dependency function
 
-> **Note:** Fastisan does not currently generate the database connection, session management, or automatic dependency injection container. The generated router expects you to configure the `get_user_service` dependency to construct the service and its repository with an active session.
+If all composition prerequisites exist (schema, repository, service, and database session), the router automatically generates fully wired dependency injection:
+
+```python
+def get_user_service(
+    session: AsyncSession = Depends(get_session),
+) -> UserService:
+    repository = UserRepository(session)
+    return UserService(repository)
+```
+
+If some prerequisites are missing, a `raise NotImplementedError` placeholder is generated instead for you to implement manually.
 
 If the required components do not exist, a lightweight fallback router is generated instead.
 
@@ -188,7 +201,7 @@ app/services/user.py
 app/routers/user.py
 ```
 
-The generated router is fully integrated with the service and repository layers, providing complete CRUD functionality out of the box, with an explicit dependency injection function left for your application-level wiring.
+The generated router is fully integrated with the service and repository layers, providing complete CRUD functionality out of the box. Because `init` generates the SQLAlchemy session foundation, `make:resource` automatically wires `AsyncSession`, the repository, and the service together in the router's dependency function.
 
 ### Generate a Middleware
 
