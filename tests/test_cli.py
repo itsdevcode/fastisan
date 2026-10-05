@@ -97,6 +97,70 @@ def test_init_command_does_not_overwrite(
     assert second_result.exit_code == 1
     assert "already initialized" in second_result.output
 
+def test_init_command_preflight_db_session_conflict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    db_dir = tmp_path / "app" / "db"
+    db_dir.mkdir(parents=True)
+    (db_dir / "session.py").touch()
+
+    result = runner.invoke(app, ["init"], input="1\n")
+    assert result.exit_code == 1
+    assert "Application foundation components already exist:" in result.output
+    assert "session.py" in result.output
+
+    assert not (tmp_path / "fastisan.toml").exists()
+    assert not (tmp_path / "app" / "main.py").exists()
+    assert not (tmp_path / "alembic.ini").exists()
+
+def test_init_command_preflight_script_mako_conflict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    migrations_dir = tmp_path / "migrations"
+    migrations_dir.mkdir(parents=True)
+    (migrations_dir / "script.py.mako").touch()
+
+    result = runner.invoke(app, ["init"], input="1\n")
+    assert result.exit_code == 1
+    assert "Application foundation components already exist:" in result.output
+    assert "script.py.mako" in result.output
+
+    assert not (tmp_path / "fastisan.toml").exists()
+    assert not (tmp_path / "app" / "main.py").exists()
+    assert not (tmp_path / "alembic.ini").exists()
+
+def test_init_command_preflight_model_registry_conflict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    models_dir = tmp_path / "app" / "models"
+    models_dir.mkdir(parents=True)
+    (models_dir / "registry.py").touch()
+
+    result = runner.invoke(app, ["init"], input="1\n")
+    assert result.exit_code == 1
+    assert "Application foundation components already exist:" in result.output
+    assert "registry.py" in result.output
+
+    assert not (tmp_path / "fastisan.toml").exists()
+    assert not (tmp_path / "alembic.ini").exists()
+
+def test_init_without_orm_ignores_alembic_conflict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "alembic.ini").touch()
+
+    result = runner.invoke(app, ["init"], input="2\n")
+    assert result.exit_code == 0
+    assert (tmp_path / "fastisan.toml").exists()
+
 def test_make_router_command(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

@@ -14,7 +14,7 @@ class AlembicGenerator:
         versions_dir = migrations_dir / "versions"
         gitkeep = versions_dir / ".gitkeep"
 
-        conflicts = [p for p in (alembic_ini, env_py) if p.exists()]
+        conflicts = [p for p in (alembic_ini, env_py, script_mako) if p.exists()]
         if conflicts:
             conflict_names = ", ".join(p.name for p in conflicts)
             raise FileExistsError(f"Migration foundation component already exists: {conflict_names}")
