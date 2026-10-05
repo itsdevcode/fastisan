@@ -1,349 +1,219 @@
+<div align="center">
+  <img src="assets/hero_banner.jpg" alt="Fastisan Hero Banner" />
+
 # Fastisan
 
-Fastisan is a command-line tool for scaffolding FastAPI components and project boilerplate.
+### Scaffold FastAPI applications without writing the same boilerplate again.
 
-It aims to reduce repetitive setup work while keeping generated code simple, readable, and easy to customize.
+Generate models, schemas, repositories, services, routers, middleware,
+database foundations, and complete CRUD resources from the command line.
 
-> Fastisan is currently in pre-alpha development. APIs, commands, and generated output may change before the first stable release.
+[![PyPI version](https://img.shields.io/pypi/v/fastisan.svg)](https://pypi.org/project/fastisan/)
+[![Python](https://img.shields.io/pypi/pyversions/fastisan.svg)](https://pypi.org/project/fastisan/)
+[![License](https://img.shields.io/pypi/l/fastisan.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/itsdevcode/fastisan?style=flat)](https://github.com/itsdevcode/fastisan/stargazers)
 
-## Features
+**[Installation](#installation) • [Quick Start](#quick-start) • [What it Generates](#what-fastisan-generates) • [Architecture](#architecture) • [Commands](#commands) • [Roadmap](#roadmap)**
 
-Fastisan currently supports:
+</div>
 
-- Project initialization with `fastisan init`
-- ORM selection during project initialization
-- SQLAlchemy project foundation generation
-- FastAPI router generation
-- ORM-aware model generation
-- Pydantic schema generation
-- Service generation
-- ORM-aware repository generation
-- Complete resource scaffolding
-- ASGI middleware generation
-- Automatic Python class-name normalization
-- Automatic snake_case file naming
-- Automatic pluralized SQLAlchemy table names
-- Protection against accidentally overwriting generated files
+---
 
-More generators and project scaffolding features are planned.
+## ⚡ What is Fastisan?
 
-## Requirements
+Building scalable FastAPI applications often requires repetitive setup: defining SQLAlchemy models, Pydantic schemas, setting up a Repository pattern, creating Service layers for business logic, mapping them to Routers, and configuring Alembic migrations.
 
-- Python 3.10 or newer
+**Fastisan** automates this entire process. With a single command, you can generate a robust, layered architecture for any resource, allowing you to focus on the actual business logic rather than writing boilerplate code.
 
-## Installation
+---
 
-Fastisan is currently under active development and is not yet published as a stable PyPI release.
+## 🚀 Installation
 
-For local development, clone the repository and install it in editable mode:
+Install Fastisan globally or in your project's virtual environment via pip:
 
 ```bash
-git clone https://github.com/itsdevcode/fastisan.git
-cd fastisan
-
-python -m venv .venv
-source .venv/bin/activate
-
-python -m pip install -e .
+pip install fastisan
 ```
 
-Verify the installation:
+---
+
+## 🚦 Quick Start
+
+Initialize a new Fastisan project and generate your first complete CRUD resource in seconds:
 
 ```bash
-fastisan --help
-```
+mkdir my-api && cd my-api
 
-## Quick Start
-
-### Initialize a project
-
-From your FastAPI project directory, run:
-
-```bash
+# 1. Initialize the FastAPI foundation (database, alembic, core files)
 fastisan init
-```
 
-Fastisan will ask which ORM the project should use:
-
-```text
-Select your ORM:
-1. SQLAlchemy
-2. None
-```
-
-The selected configuration is stored in:
-
-```text
-fastisan.toml
-```
-
-For example:
-
-```toml
-[project]
-orm = "sqlalchemy"
-```
-
-When SQLAlchemy is selected, Fastisan generates the application foundation, including database components:
-
-```text
-app/
-├── __init__.py
-├── main.py
-├── db/
-│   ├── __init__.py
-│   ├── base.py
-│   └── session.py
-├── models/
-│   └── __init__.py
-├── schemas/
-│   └── __init__.py
-├── repositories/
-│   └── __init__.py
-├── services/
-│   └── __init__.py
-└── routers/
-    ├── __init__.py
-    └── registry.py
-```
-
-`app/main.py` is a minimal, runnable FastAPI application (once application dependencies like FastAPI itself are installed) with a `/health` endpoint.
-The `registry.py` file is deterministically managed by Fastisan and automatically aggregates all your generated routers.
-Fastisan generates a reusable async SQLAlchemy session dependency inside `session.py`. It expects a database connection string via the `DATABASE_URL` environment variable (e.g., `postgresql+asyncpg://...`).
-
-### Database Migration and Dependencies
-
-Fastisan generates the project foundation, but it does not manage your runtime dependencies. When scaffolding a SQLAlchemy project, ensure your project environment installs the required asynchronous driver, ORM, and migration tools:
-
-```bash
-pip install "sqlalchemy[asyncio]" alembic asyncpg
-```
-
-You must also configure your `DATABASE_URL` environment variable for migrations and application connectivity (e.g., `export DATABASE_URL="postgresql+asyncpg://user:pass@localhost/dbname"`).
-
-### Generate a Router
-
-```bash
-fastisan make:router User
-```
-
-Generates a FastAPI router for the resource. 
-
-When the corresponding schema and service files exist, Fastisan automatically generates a service-aware CRUD router that:
-- Delegates application logic to the service layer
-- Handles HTTP 404 responses when resources are not found
-- Defines an explicit composition boundary via a `get_user_service` dependency function
-
-If all composition prerequisites exist (schema, repository, service, and database session), the router automatically generates fully wired dependency injection:
-
-```python
-def get_user_service(
-    session: AsyncSession = Depends(get_session),
-) -> UserService:
-    repository = UserRepository(session)
-    return UserService(repository)
-```
-
-If some prerequisites are missing, a `raise NotImplementedError` placeholder is generated instead for you to implement manually.
-
-If the required components do not exist, a lightweight fallback router is generated instead.
-
-### Generate a Model
-
-Model generation uses the ORM configured by `fastisan init`.
-
-```bash
-fastisan make:model User
-```
-
-With SQLAlchemy configured, Fastisan generates:
-
-```text
-app/
-└── models/
-    └── user.py
-```
-
-The generated model includes a primary key and timestamp fields.
-
-Fastisan also normalizes model names:
-
-```bash
-fastisan make:model user
-```
-
-generates a `User` class with the `users` table.
-
-Similarly:
-
-```bash
-fastisan make:model blog_post
-```
-
-generates:
-
-```python
-class BlogPost(Base):
-    __tablename__ = "blog_posts"
-```
-
-### Generate a Schema
-
-```bash
-fastisan make:schema User
-```
-
-Generates a Pydantic schema file for the model.
-
-### Generate a Repository
-
-```bash
-fastisan make:repository User
-```
-
-Generates an ORM-aware repository for the model (requires an ORM to be configured and the model file to exist).
-
-### Generate a Service
-
-```bash
-fastisan make:service User
-```
-
-Generates a service layer class for the model. When generated as part of a complete resource (or when the corresponding repository exists), the service will automatically integrate with and delegate to the repository.
-
-### Generate a Resource
-
-```bash
-fastisan make:resource User
-```
-
-You can also scaffold a resource with coordinated user-defined fields:
-
-```bash
+# 2. Scaffold a complete User resource with specific fields
 fastisan make:resource User \
-  --fields "name:str,email:str,age:int?,is_active:bool"
+  --fields "name:str,email:str,age:int?"
 ```
 
-Supported v1 field types:
-- `str`
-- `int`
-- `float`
-- `bool`
-- `datetime`
-
-Appending `?` to the field type (e.g., `age:int?`) marks the field as optional (nullable).
-
-Generates a complete resource scaffold safely:
+### The Terminal Experience
 
 ```text
-app/models/user.py
-app/schemas/user.py
-app/repositories/user.py
-app/services/user.py
-app/routers/user.py
+$ fastisan make:resource User --fields "name:str,email:str,age:int?"
+
+Generating Model...
+Generating Schema...
+Generating Repository...
+Generating Service...
+Generating Router...
+
+✨ Successfully scaffolded User resource!
 ```
 
-After generating the resource, Fastisan automatically registers `user.py` into `app/routers/registry.py` so your main application immediately serves the new endpoints.
+### What it Generates
 
-The generated router is fully integrated with the service and repository layers, providing complete CRUD functionality out of the box. Because `init` generates the SQLAlchemy session foundation, `make:resource` automatically wires `AsyncSession`, the repository, and the service together in the router's dependency function.
-
-### Generate a Middleware
-
-```bash
-fastisan make:middleware Auth
-```
-
-Generates a generic pass-through ASGI middleware:
+When you run the `make:resource` command, Fastisan automatically sets up the complete layered structure for you:
 
 ```text
 app/
-└── middleware/
-    └── auth.py
+├── models/
+│   └── user.py        # SQLAlchemy Model
+├── schemas/
+│   └── user.py        # Pydantic Schemas (Create, Update, Read)
+├── repositories/
+│   └── user.py        # Async Database Operations
+├── services/
+│   └── user.py        # Business Logic Layer
+└── routers/
+    └── user.py        # FastAPI API Endpoints
 ```
 
-## ORM Support
+### From one command to a complete resource
 
-Current ORM support:
+```text
+                    fastisan make:resource User
+                              │
+             ┌────────────────┼────────────────┐
+             │                │                │
+             ▼                ▼                ▼
+           Model            Schema         Repository
+                                                │
+                                                ▼
+                                             Service
+                                                │
+                                                ▼
+                                             Router
+                                                │
+                                                ▼
+                                             FastAPI
+```
 
-| ORM | Status |
-| --- | --- |
-| SQLAlchemy | Supported |
-| None | Supported |
+---
 
-Fastisan's core is designed to remain ORM-agnostic where practical so additional ORM integrations can be introduced independently.
+## 🛠 What Fastisan Generates
 
-## Project Status
+| Command | Generates | Description |
+|---|---|---|
+| `fastisan init` | Application foundation | Sets up FastAPI, SQLAlchemy db config, Alembic migrations, and directory structure. |
+| `make:model` | SQLAlchemy model | Creates an async SQLAlchemy declarative base model. |
+| `make:schema` | Pydantic schemas | Scaffolds Create, Update, and Response schemas for validation. |
+| `make:repository` | Async repository | Sets up the data access layer for CRUD operations. |
+| `make:service` | Service layer | Creates a service class for separating business logic from routers. |
+| `make:router` | FastAPI router | Generates standard RESTful API endpoints mapped to the service layer. |
+| `make:middleware` | ASGI middleware | Creates a skeleton for custom request/response interception. |
+| `make:resource` | **Complete CRUD resource** | Coordinates the generation of a full, layered API resource instantly. |
 
-Fastisan is currently **pre-alpha**.
+---
 
-The project is being developed incrementally with tests around generators, naming behavior, project configuration, and CLI behavior.
+## 🏗 Architecture
 
-The current focus is establishing a reliable foundation before expanding the generator surface.
+Fastisan generates a clean, layered architectural pattern, keeping your codebase maintainable and scalable as it grows:
 
-## Roadmap
+```text
+   Client Request
+         │
+         ▼
+      FastAPI (app)
+         │
+         ▼
+      Router  <───────── Request Validation (Schemas)
+         │
+         ▼
+      Service <───────── Business Logic
+         │
+         ▼
+    Repository <──────── Data Access Abstraction
+         │
+         ▼
+   AsyncSession
+         │
+         ▼
+       Database
+```
 
-Potential future capabilities include:
+---
 
-- Resource generation
-- Complete FastAPI project scaffolding
-- Additional ORM integrations
-- Improved project configuration
-- Release automation
+## 💻 Commands
 
-The roadmap may evolve as the project develops.
+Fastisan provides a variety of commands to streamline your workflow. You can view all available commands by running `fastisan --help`. Below are the core commands:
 
-## Development
+- `fastisan init`: Scaffolds the initial FastAPI project structure.
+- `fastisan make:resource <name>`: Generates a complete API resource (Model, Schema, Repository, Service, Router).
+- `fastisan make:model <name>`: Generates a SQLAlchemy model.
+- `fastisan make:schema <name>`: Generates Pydantic schemas.
+- `fastisan make:repository <name>`: Generates an async repository class.
+- `fastisan make:service <name>`: Generates a business logic service layer.
+- `fastisan make:router <name>`: Generates a FastAPI APIRouter.
 
-Clone the repository:
+---
+
+## 📦 Database & Alembic
+
+Fastisan relies on async SQLAlchemy and Alembic out of the box. The `fastisan init` command prepares everything you need to start migrating.
 
 ```bash
-git clone https://github.com/itsdevcode/fastisan.git
-cd fastisan
+# After generating a new resource, create a migration
+alembic revision --autogenerate -m "Added User resource"
+
+# Apply the migration to your database
+alembic upgrade head
 ```
 
-Create and activate a virtual environment:
+---
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-```
+## 🚧 Current Limitations (v0.1.0)
 
-Install Fastisan with development dependencies:
+- **Early Stage (Pre-Alpha):** Fastisan is currently in early development and APIs/generated structures may change.
+- **Database Support:** Defaults to **async SQLAlchemy** (tested with PostgreSQL + asyncpg). Synchronous repositories and other database engines are not explicitly supported yet.
+- **Relationships:** Relationships between models (e.g., One-to-Many, Many-to-Many) must be configured manually after scaffolding.
+- **Field Constraints:** Advanced field constraints (like unique, index, length) via CLI arguments are limited and may require manual updates to the generated models.
 
-```bash
-python -m pip install -e ".[dev]"
-```
+---
 
-Run the test suite:
+## 🗺 Roadmap
 
-```bash
-pytest -v
-```
+- [ ] Support for richer field constraints via CLI (e.g., `email:str:unique:index`).
+- [ ] Automatic generation of model relationships and Foreign Keys.
+- [ ] Generated-project dependency management (automatic additions to requirements).
+- [ ] Dry-run mode (`--dry-run`) to preview generated files without writing them.
+- [ ] `fastisan inspect` or `doctor` commands to check project health and configuration.
 
-Check for whitespace errors:
+---
 
-```bash
-git diff --check
-```
+## 🤝 Contributing
 
-## Contributing
+We welcome contributions! If you'd like to help improve Fastisan, please check out our [Contributing Guidelines](CONTRIBUTING.md).
 
-Contributions are welcome.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-Before contributing, please read [CONTRIBUTING.md](CONTRIBUTING.md).
+---
 
-Bug reports and feature requests can be submitted through GitHub Issues.
+## 👤 Author
 
-## Security
+**Arun Yadav** - [itsdevcode@gmail.com](mailto:itsdevcode@gmail.com)
 
-Please do not report security vulnerabilities through public GitHub issues.
+---
 
-See [SECURITY.md](SECURITY.md) for reporting guidance.
-
-## Code of Conduct
-
-Participation in the Fastisan community is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
-
-## License
-
-Fastisan is released under the [MIT License](LICENSE).
+<div align="center">
+  Built with ❤️ for the FastAPI ecosystem.
+</div>
