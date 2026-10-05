@@ -195,6 +195,17 @@ We welcome contributions! If you'd like to help improve Fastisan, please check o
 
 ---
 
+
+## ☕ Support Fastisan
+
+If Fastisan saves you time or helps with your FastAPI projects, consider supporting its development.
+
+<a href="https://www.buymeacoffee.com/itsdevcode">
+  <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=itsdevcode&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" />
+</a>
+
+---
+
 ## 👤 Author
 
 **Arun Yadav** — [@itsdevcode](https://github.com/itsdevcode)
