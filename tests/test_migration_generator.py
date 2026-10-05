@@ -17,6 +17,9 @@ def test_alembic_generator(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
     assert "postgresql+asyncpg://user:pass@localhost/db" not in alembic_ini_content
     assert "sqlalchemy.url =" in alembic_ini_content
     assert "script_location = migrations" in alembic_ini_content
+    assert "prepend_sys_path = ." in alembic_ini_content
+    assert "[loggers]" in alembic_ini_content
+    assert "[logger_alembic]" in alembic_ini_content
 
     env_content = (tmp_path / "migrations" / "env.py").read_text(encoding="utf-8")
     assert 'database_url = os.environ["DATABASE_URL"]' in env_content
