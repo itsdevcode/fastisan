@@ -26,6 +26,13 @@ def test_generate_sqlalchemy_resource(
     for p in expected_paths:
         assert p.exists()
 
+    router_content = expected_paths[4].read_text(encoding="utf-8")
+    assert "from app.services.user import UserService" in router_content
+    assert "Depends(get_user_service)" in router_content
+
+    service_content = expected_paths[3].read_text(encoding="utf-8")
+    assert "from app.repositories.user import UserRepository" in service_content
+
 
 def test_resource_name_normalization_lowercase(
     tmp_path: Path,
