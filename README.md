@@ -207,6 +207,22 @@ Generates a service layer class for the model. When generated as part of a compl
 fastisan make:resource User
 ```
 
+You can also scaffold a resource with coordinated user-defined fields:
+
+```bash
+fastisan make:resource User \
+  --fields "name:str,email:str,age:int?,is_active:bool"
+```
+
+Supported v1 field types:
+- `str`
+- `int`
+- `float`
+- `bool`
+- `datetime`
+
+Appending `?` to the field type (e.g., `age:int?`) marks the field as optional (nullable).
+
 Generates a complete resource scaffold safely:
 
 ```text

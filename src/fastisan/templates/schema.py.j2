@@ -1,17 +1,38 @@
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
 class {{ name }}Base(BaseModel):
+{% if fields %}
+{% for field in fields %}
+{% if field.nullable %}
+    {{ field.name }}: {{ field.python_type }} | None = None
+{% else %}
+    {{ field.name }}: {{ field.python_type }}
+{% endif %}
+{% endfor %}
+{% else %}
     pass
+{% endif %}
 
 
 class {{ name }}Create({{ name }}Base):
     pass
 
 
-class {{ name }}Update({{ name }}Base):
+class {{ name }}Update(BaseModel):
+{% if fields %}
+{% for field in fields %}
+    {{ field.name }}: {{ field.python_type }} | None = None
+{% endfor %}
+{% else %}
     pass
+{% endif %}
 
 
 class {{ name }}Response({{ name }}Base):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
     model_config = ConfigDict(from_attributes=True)

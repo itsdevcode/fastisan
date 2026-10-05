@@ -18,7 +18,7 @@ def test_schema_generator_creates_schema(tmp_path: Path, monkeypatch: pytest.Mon
 
     assert "class UserBase(BaseModel):" in content
     assert "class UserCreate(UserBase):" in content
-    assert "class UserUpdate(UserBase):" in content
+    assert "class UserUpdate(BaseModel):" in content
     assert "class UserResponse(UserBase):" in content
     assert "model_config = ConfigDict(from_attributes=True)" in content
 
@@ -38,7 +38,7 @@ def test_schema_generator_normalizes_name(
 
     assert "class BlogPostBase(BaseModel):" in content
     assert "class BlogPostCreate(BlogPostBase):" in content
-    assert "class BlogPostUpdate(BlogPostBase):" in content
+    assert "class BlogPostUpdate(BaseModel):" in content
     assert "class BlogPostResponse(BlogPostBase):" in content
 
 

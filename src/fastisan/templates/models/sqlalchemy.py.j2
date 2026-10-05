@@ -1,6 +1,10 @@
 from datetime import datetime
 
+{% if sqlalchemy_imports %}
+from sqlalchemy import {{ sqlalchemy_imports }}
+{% else %}
 from sqlalchemy import DateTime, Integer, func
+{% endif %}
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -10,7 +14,20 @@ class {{ name }}(Base):
     __tablename__ = "{{ table_name }}"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+{% if fields %}
+
+{% for field in fields %}
+{% if field.nullable %}
+    {{ field.name }}: Mapped[{{ field.python_type }} | None] = mapped_column({{ field.sqlalchemy_type }}, nullable=True)
+{% else %}
+    {{ field.name }}: Mapped[{{ field.python_type }}] = mapped_column({{ field.sqlalchemy_type }}, nullable=False)
+{% endif %}
+{% endfor %}
+{% endif %}
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now()
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), onupdate=func.now()
     )
