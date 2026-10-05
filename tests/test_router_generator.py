@@ -89,6 +89,40 @@ def test_generate_router_schema_and_service(
     assert "await service.delete(id)" in content
 
 
+def test_generate_router_complete_composition(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    schema_dir = tmp_path / "app" / "schemas"
+    schema_dir.mkdir(parents=True, exist_ok=True)
+    (schema_dir / "user.py").touch()
+
+    service_dir = tmp_path / "app" / "services"
+    service_dir.mkdir(parents=True, exist_ok=True)
+    (service_dir / "user.py").touch()
+
+    repo_dir = tmp_path / "app" / "repositories"
+    repo_dir.mkdir(parents=True, exist_ok=True)
+    (repo_dir / "user.py").touch()
+
+    db_dir = tmp_path / "app" / "db"
+    db_dir.mkdir(parents=True, exist_ok=True)
+    (db_dir / "session.py").touch()
+
+    file_path = generate_router("User")
+    content = file_path.read_text(encoding="utf-8")
+
+    assert "from sqlalchemy.ext.asyncio import AsyncSession" in content
+    assert "from app.db.session import get_session" in content
+    assert "from app.repositories.user import UserRepository" in content
+    assert "from app.services.user import UserService" in content
+    assert "def get_user_service(" in content
+    assert "session: AsyncSession = Depends(get_session)," in content
+    assert "repository = UserRepository(session)" in content
+    assert "return UserService(repository)" in content
+    assert "raise NotImplementedError" not in content
+
+
 def test_generate_router_does_not_overwrite(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
