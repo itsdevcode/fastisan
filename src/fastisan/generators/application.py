@@ -16,8 +16,10 @@ class ApplicationGenerator:
 
         if orm == "sqlalchemy":
             targets.extend([
+                app_dir / "core" / "config.py",
                 app_dir / "db" / "base.py",
                 app_dir / "db" / "session.py",
+                app_dir / "db" / "deps.py",
                 app_dir / "models" / "registry.py",
                 Path.cwd() / "alembic.ini",
                 Path.cwd() / "migrations" / "env.py",
@@ -37,6 +39,10 @@ class ApplicationGenerator:
 
         paths: list[Path] = []
 
+        if orm == "sqlalchemy":
+            from fastisan.generators.core import CoreConfigGenerator
+            paths.extend(CoreConfigGenerator().generate())
+
         from fastisan.generators.database.factory import generate_database_foundation
         db_paths = generate_database_foundation(orm)
         if db_paths:
@@ -52,7 +58,7 @@ class ApplicationGenerator:
 
         packages = ["", "models", "schemas", "repositories", "services", "routers"]
         if orm == "sqlalchemy":
-            packages.append("db")
+            packages.extend(["db", "core"])
 
         for pkg in packages:
             pkg_path = app_dir / pkg if pkg else app_dir
