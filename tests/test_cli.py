@@ -42,7 +42,18 @@ def test_init_command(
 
     session_content = session_path.read_text(encoding="utf-8")
     assert "async def get_session" in session_content
-    assert "DATABASE_URL = os.environ[\"DATABASE_URL\"]" in session_content
+    assert "from app.core.config import settings" in session_content
+    assert "settings.database_url" in session_content
+
+    config_path = tmp_path / "app" / "core" / "config.py"
+    assert config_path.exists()
+    config_content = config_path.read_text(encoding="utf-8")
+    assert "class Settings(BaseSettings):" in config_content
+    assert "database_url: str" in config_content
+
+    env_example_path = tmp_path / ".env.example"
+    assert env_example_path.exists()
+    assert "DATABASE_URL" in env_example_path.read_text(encoding="utf-8")
 
     main_path = tmp_path / "app" / "main.py"
     assert main_path.exists()
@@ -52,7 +63,7 @@ def test_init_command(
     assert registry_path.exists()
     assert "router = APIRouter()" in registry_path.read_text(encoding="utf-8")
 
-    for pkg in ["", "models", "schemas", "repositories", "services", "routers", "db"]:
+    for pkg in ["", "models", "schemas", "repositories", "services", "routers", "db", "core"]:
         pkg_init = tmp_path / "app" / pkg / "__init__.py" if pkg else tmp_path / "app" / "__init__.py"
         assert pkg_init.exists()
 
@@ -96,6 +107,23 @@ def test_init_command_does_not_overwrite(
 
     assert second_result.exit_code == 1
     assert "already initialized" in second_result.output
+
+def test_init_command_preflight_core_config_conflict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    core_dir = tmp_path / "app" / "core"
+    core_dir.mkdir(parents=True)
+    (core_dir / "config.py").touch()
+
+    result = runner.invoke(app, ["init"], input="1\n")
+    assert result.exit_code == 1
+    assert "Application foundation components already exist:" in result.output
+    assert "config.py" in result.output
+
+    assert not (tmp_path / "fastisan.toml").exists()
+    assert not (tmp_path / "app" / "main.py").exists()
 
 def test_init_command_preflight_db_session_conflict(
     tmp_path: Path,
