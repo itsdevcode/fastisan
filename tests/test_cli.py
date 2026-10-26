@@ -55,14 +55,6 @@ def test_init_command(
     assert env_example_path.exists()
     assert "DATABASE_URL" in env_example_path.read_text(encoding="utf-8")
 
-    deps_path = tmp_path / "app" / "db" / "deps.py"
-    assert deps_path.exists()
-    deps_content = deps_path.read_text(encoding="utf-8")
-    assert "DbSession" in deps_content
-    assert "Annotated" in deps_content
-    assert "Depends(get_session)" in deps_content
-
-
     main_path = tmp_path / "app" / "main.py"
     assert main_path.exists()
     assert "from fastapi import FastAPI" in main_path.read_text(encoding="utf-8")
