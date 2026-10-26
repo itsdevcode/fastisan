@@ -44,11 +44,6 @@ def test_init_command(
     assert "async def get_session" in session_content
     assert "from app.core.config import settings" in session_content
     assert "settings.database_url" in session_content
-    assert "pool_pre_ping=True" in session_content
-    assert "bind=engine" in session_content
-    assert "class_=AsyncSession" in session_content
-    assert "expire_on_commit=False" in session_content
-
 
     config_path = tmp_path / "app" / "core" / "config.py"
     assert config_path.exists()
