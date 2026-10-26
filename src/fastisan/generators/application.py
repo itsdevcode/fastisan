@@ -12,6 +12,7 @@ class ApplicationGenerator:
         targets = [
             app_dir / "main.py",
             app_dir / "routers" / "registry.py",
+            Path.cwd() / "requirements.txt",
         ]
 
         if orm == "sqlalchemy":
@@ -36,6 +37,7 @@ class ApplicationGenerator:
         app_dir = Path.cwd() / "app"
 
         main_destination = app_dir / "main.py"
+        requirements_destination = Path.cwd() / "requirements.txt"
 
         paths: list[Path] = []
 
@@ -52,6 +54,12 @@ class ApplicationGenerator:
             template_name="main.py.j2",
             destination=main_destination,
             context={},
+        ))
+
+        paths.append(self.generator.generate(
+            template_name="requirements.txt.j2",
+            destination=requirements_destination,
+            context={"orm": orm},
         ))
 
         paths.append(regenerate_router_registry())
