@@ -246,3 +246,52 @@ class UserRepository:
 
     missing_delete = await service.delete(99)
     assert missing_delete is False
+
+
+def test_service_generator_formatting(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    from fastisan.generators.service import ServiceGenerator
+
+    generator = ServiceGenerator()
+
+    # 1. Minimal service (no schema, no repo)
+    min_file = generator.generate("User")
+    min_content = min_file.read_text(encoding="utf-8")
+
+    assert min_content.startswith("class UserService:")
+    assert min_content.endswith("\n")
+    assert not min_content.endswith("\n\n")
+    assert "\n\n\n" not in min_content
+
+    # 2. Service with schema
+    schemas_dir = tmp_path / "app" / "schemas"
+    schemas_dir.mkdir(parents=True, exist_ok=True)
+    (schemas_dir / "user.py").touch()
+
+    min_file.unlink()
+    schema_file = generator.generate("User")
+    schema_content = schema_file.read_text(encoding="utf-8")
+
+    assert schema_content.startswith("from app.schemas.user import")
+    assert schema_content.endswith("\n")
+    assert not schema_content.endswith("\n\n")
+    assert "\n\n\n\n" not in schema_content
+    assert "from app.schemas.user import UserCreate, UserResponse, UserUpdate\n\n\nclass UserService:" in schema_content
+
+    # 3. Service with schema and repository
+    repos_dir = tmp_path / "app" / "repositories"
+    repos_dir.mkdir(parents=True, exist_ok=True)
+    (repos_dir / "user.py").touch()
+
+    schema_file.unlink()
+    full_file = generator.generate("User")
+    full_content = full_file.read_text(encoding="utf-8")
+
+    assert full_content.startswith("from app.repositories.user import UserRepository")
+    assert full_content.endswith("\n")
+    assert not full_content.endswith("\n\n")
+    assert "\n\n\n\n" not in full_content
+    assert "from app.schemas.user import UserCreate, UserResponse, UserUpdate\n\n\nclass UserService:" in full_content

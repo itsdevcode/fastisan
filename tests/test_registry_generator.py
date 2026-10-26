@@ -1,7 +1,6 @@
 from pathlib import Path
 import pytest
 from fastisan.generators.registry import regenerate_router_registry
-from fastisan.generators.base import BaseGenerator
 
 def test_registry_discovery(
     tmp_path: Path,
@@ -67,3 +66,46 @@ def test_registry_regeneration_idempotency(
     assert content_first == content_second
     assert content_first.count("router.include_router(user_router)") == 1
     assert content_first.count("router.include_router(blog_post_router)") == 1
+
+
+def test_registry_formatting(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    routers_dir = tmp_path / "app" / "routers"
+    routers_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Empty registry
+    reg_file = regenerate_router_registry()
+    content = reg_file.read_text(encoding="utf-8")
+
+    assert content.endswith("\n")
+    assert not content.endswith("\n\n")
+    assert "\n\n\n\n" not in content
+    expected_empty = (
+        "# This file is managed by Fastisan.\n\n"
+        "from fastapi import APIRouter\n\n\n"
+        "router = APIRouter()\n"
+    )
+    assert content == expected_empty
+
+    # 2. Populated registry
+    (routers_dir / "user.py").touch()
+    (routers_dir / "item.py").touch()
+    reg_file = regenerate_router_registry()
+    pop_content = reg_file.read_text(encoding="utf-8")
+
+    assert pop_content.endswith("\n")
+    assert not pop_content.endswith("\n\n")
+    assert "\n\n\n\n" not in pop_content
+    expected_pop = (
+        "# This file is managed by Fastisan.\n\n"
+        "from fastapi import APIRouter\n\n"
+        "from app.routers.item import router as item_router\n"
+        "from app.routers.user import router as user_router\n\n\n"
+        "router = APIRouter()\n\n"
+        "router.include_router(item_router)\n"
+        "router.include_router(user_router)\n"
+    )
+    assert pop_content == expected_pop

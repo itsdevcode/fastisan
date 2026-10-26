@@ -1,4 +1,4 @@
-{% if schema_exists and repository_exists %}
+{% if schema_exists and repository_exists -%}
 from app.repositories.{{ snake_name }} import {{ name }}Repository
 from app.schemas.{{ snake_name }} import {{ name }}Create, {{ name }}Response, {{ name }}Update
 
@@ -56,7 +56,7 @@ class {{ name }}Service:
         await self.repository.delete(db_obj)
 
         return True
-{% elif schema_exists %}
+{% elif schema_exists -%}
 from app.schemas.{{ snake_name }} import {{ name }}Create, {{ name }}Response, {{ name }}Update
 
 
@@ -79,7 +79,7 @@ class {{ name }}Service:
 
     async def delete(self, id: int) -> bool:
         raise NotImplementedError
-{% else %}
+{% else -%}
 class {{ name }}Service:
     pass
-{% endif %}
+{% endif -%}

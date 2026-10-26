@@ -3,17 +3,17 @@ from pydantic import BaseModel, ConfigDict
 
 
 class {{ name }}Base(BaseModel):
-{% if fields %}
-{% for field in fields %}
-{% if field.nullable %}
+{%- if fields %}
+{%- for field in fields %}
+{%- if field.nullable %}
     {{ field.name }}: {{ field.python_type }} | None = None
-{% else %}
+{%- else %}
     {{ field.name }}: {{ field.python_type }}
-{% endif %}
-{% endfor %}
-{% else %}
+{%- endif %}
+{%- endfor %}
+{%- else %}
     pass
-{% endif %}
+{%- endif %}
 
 
 class {{ name }}Create({{ name }}Base):
@@ -21,13 +21,13 @@ class {{ name }}Create({{ name }}Base):
 
 
 class {{ name }}Update(BaseModel):
-{% if fields %}
-{% for field in fields %}
+{%- if fields %}
+{%- for field in fields %}
     {{ field.name }}: {{ field.python_type }} | None = None
-{% endfor %}
-{% else %}
+{%- endfor %}
+{%- else %}
     pass
-{% endif %}
+{%- endif %}
 
 
 class {{ name }}Response({{ name }}Base):
