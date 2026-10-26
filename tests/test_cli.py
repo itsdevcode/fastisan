@@ -73,7 +73,11 @@ def test_init_command(
 
     env_path = tmp_path / "migrations" / "env.py"
     assert env_path.exists()
-    assert "import app.models.registry" in env_path.read_text(encoding="utf-8")
+    env_content = env_path.read_text(encoding="utf-8")
+    assert "import app.models.registry" in env_content
+    assert "from app.core.config import settings" in env_content
+    assert "settings.database_url" in env_content
+    assert "os.environ" not in env_content
 
     script_path = tmp_path / "migrations" / "script.py.mako"
     assert script_path.exists()
