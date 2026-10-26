@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 import pytest
 from typer.testing import CliRunner
 
@@ -43,30 +44,42 @@ def test_alembic_generator(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
     assert "await connectable.dispose()" in env_content
 
 
-def test_alembic_generator_orm_none(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_alembic_generator_orm_none(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     paths = generate_migration_foundation("none")
     assert len(paths) == 0
 
 
-def test_alembic_generator_conflicts(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_alembic_generator_conflicts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     (tmp_path / "alembic.ini").write_text("")
 
-    with pytest.raises(FileExistsError, match="Migration foundation component already exists: alembic.ini"):
+    with pytest.raises(
+        FileExistsError,
+        match="Migration foundation component already exists: alembic.ini",
+    ):
         generate_migration_foundation("sqlalchemy")
 
 
-def test_alembic_generator_script_mako_conflict(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_alembic_generator_script_mako_conflict(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     migrations_dir = tmp_path / "migrations"
     migrations_dir.mkdir()
     (migrations_dir / "script.py.mako").touch()
 
-    with pytest.raises(FileExistsError, match="Migration foundation component already exists: script.py.mako"):
+    with pytest.raises(
+        FileExistsError,
+        match="Migration foundation component already exists: script.py.mako",
+    ):
         generate_migration_foundation("sqlalchemy")
 
     assert not (tmp_path / "alembic.ini").exists()
@@ -83,7 +96,9 @@ def test_alembic_shares_database_url_source_with_app(
     result = runner.invoke(app, ["init"], input="1\n")
     assert result.exit_code == 0
 
-    session_content = (tmp_path / "app" / "db" / "session.py").read_text(encoding="utf-8")
+    session_content = (tmp_path / "app" / "db" / "session.py").read_text(
+        encoding="utf-8"
+    )
     env_content = (tmp_path / "migrations" / "env.py").read_text(encoding="utf-8")
 
     # Both must import settings from app.core.config
@@ -103,7 +118,10 @@ def test_alembic_url_escaping_logic() -> None:
     # Verify % escaping behavior required for Alembic ConfigParser
     raw_url = "postgresql+asyncpg://user:p%40ss%25word@localhost:5432/db%20name"
     escaped_url = raw_url.replace("%", "%%")
-    assert escaped_url == "postgresql+asyncpg://user:p%%40ss%%25word@localhost:5432/db%%20name"
+    assert (
+        escaped_url
+        == "postgresql+asyncpg://user:p%%40ss%%25word@localhost:5432/db%%20name"
+    )
     assert "%%" in escaped_url
 
 
@@ -125,9 +143,11 @@ def test_alembic_migration_execution_postgresql(
     (tmp_path / ".env").write_text(f"DATABASE_URL={test_db_url}\n", encoding="utf-8")
 
     import subprocess
+
     rev_res = subprocess.run(
         ["alembic", "revision", "--autogenerate", "-m", "test_init"],
         cwd=tmp_path,
+        check=False,
         capture_output=True,
         text=True,
     )
@@ -136,6 +156,7 @@ def test_alembic_migration_execution_postgresql(
     up_res = subprocess.run(
         ["alembic", "upgrade", "head"],
         cwd=tmp_path,
+        check=False,
         capture_output=True,
         text=True,
     )

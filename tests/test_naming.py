@@ -12,6 +12,7 @@ def test_to_table_name() -> None:
     assert to_table_name("Category") == "categories"
     assert to_table_name("Person") == "people"
 
+
 def test_to_pascal_case() -> None:
     assert to_pascal_case("user") == "User"
     assert to_pascal_case("blog_post") == "BlogPost"

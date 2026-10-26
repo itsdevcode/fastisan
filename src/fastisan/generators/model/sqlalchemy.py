@@ -1,12 +1,12 @@
 from pathlib import Path
 
 from fastisan.generators.base import BaseGenerator
+from fastisan.specs import FieldSpec
 from fastisan.utils.naming import (
     to_pascal_case,
     to_snake_case,
     to_table_name,
 )
-from fastisan.specs import FieldSpec
 
 
 class SQLAlchemyModelGenerator:
@@ -37,14 +37,16 @@ class SQLAlchemyModelGenerator:
         for field in fields:
             sqla_type = type_mapping[field.type]
             sqlalchemy_imports.add(sqla_type)
-            mapped_fields.append({
-                "name": field.name,
-                "python_type": field.type,
-                "sqlalchemy_type": sqla_type,
-                "nullable": field.nullable,
-            })
+            mapped_fields.append(
+                {
+                    "name": field.name,
+                    "python_type": field.type,
+                    "sqlalchemy_type": sqla_type,
+                    "nullable": field.nullable,
+                }
+            )
 
-        sorted_imports = sorted(list(sqlalchemy_imports))
+        sorted_imports = sorted(sqlalchemy_imports)
         imports_str = ", ".join(sorted_imports)
 
         return self.generator.generate(

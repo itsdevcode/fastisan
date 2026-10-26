@@ -10,8 +10,7 @@ class MiddlewareGenerator:
 
     def generate(self, name: str) -> Path:
         class_name = to_pascal_case(name)
-        if class_name.endswith("Middleware"):
-            class_name = class_name[:-10]
+        class_name = class_name.removesuffix("Middleware")
 
         snake_name = to_snake_case(class_name)
 

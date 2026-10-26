@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import TypedDict, cast
-import tomli
 
+import tomli
 
 CONFIG_FILENAME = "fastisan.toml"
 
@@ -30,9 +30,7 @@ def create_project_config(orm: str) -> Path:
     config_path = get_config_path()
 
     if config_path.exists():
-        raise FileExistsError(
-            f"Fastisan project already initialized: {config_path}"
-        )
+        raise FileExistsError(f"Fastisan project already initialized: {config_path}")
 
     content = f'[project]\norm = "{orm}"\n'
 
@@ -55,7 +53,7 @@ def read_project_config() -> FastisanConfig:
     project = config.get("project")
 
     if not isinstance(project, dict):
-        raise ValueError(
+        raise ValueError(  # noqa: TRY004
             "Missing [project] section in fastisan.toml"
         )
 
@@ -63,14 +61,12 @@ def read_project_config() -> FastisanConfig:
     orm = project_config.get("orm")
 
     if not isinstance(orm, str):
-        raise ValueError(
+        raise ValueError(  # noqa: TRY004
             "Missing or invalid ORM in fastisan.toml"
         )
 
     if orm not in SUPPORTED_ORMS:
-        raise ValueError(
-            f"Unsupported ORM in fastisan.toml: {orm}"
-        )
+        raise ValueError(f"Unsupported ORM in fastisan.toml: {orm}")
 
     return {
         "project": {

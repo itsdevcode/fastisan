@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from fastisan.generators.base import BaseGenerator
 from fastisan.generators.registry import regenerate_router_registry
 
@@ -16,21 +17,25 @@ class ApplicationGenerator:
         ]
 
         if orm == "sqlalchemy":
-            targets.extend([
-                app_dir / "core" / "config.py",
-                app_dir / "db" / "base.py",
-                app_dir / "db" / "session.py",
-                app_dir / "db" / "deps.py",
-                app_dir / "models" / "registry.py",
-                Path.cwd() / "alembic.ini",
-                Path.cwd() / "migrations" / "env.py",
-                Path.cwd() / "migrations" / "script.py.mako",
-            ])
+            targets.extend(
+                [
+                    app_dir / "core" / "config.py",
+                    app_dir / "db" / "base.py",
+                    app_dir / "db" / "session.py",
+                    app_dir / "db" / "deps.py",
+                    app_dir / "models" / "registry.py",
+                    Path.cwd() / "alembic.ini",
+                    Path.cwd() / "migrations" / "env.py",
+                    Path.cwd() / "migrations" / "script.py.mako",
+                ]
+            )
 
         conflicts = [p for p in targets if p.exists()]
         if conflicts:
             conflict_names = ", ".join(str(p) for p in conflicts)
-            raise FileExistsError(f"Application foundation components already exist: {conflict_names}")
+            raise FileExistsError(
+                f"Application foundation components already exist: {conflict_names}"
+            )
 
     def generate(self, orm: str) -> list[Path]:
         self.preflight(orm)
@@ -43,24 +48,30 @@ class ApplicationGenerator:
 
         if orm == "sqlalchemy":
             from fastisan.generators.core import CoreConfigGenerator
+
             paths.extend(CoreConfigGenerator().generate())
 
         from fastisan.generators.database.factory import generate_database_foundation
+
         db_paths = generate_database_foundation(orm)
         if db_paths:
             paths.extend(db_paths)
 
-        paths.append(self.generator.generate(
-            template_name="main.py.j2",
-            destination=main_destination,
-            context={},
-        ))
+        paths.append(
+            self.generator.generate(
+                template_name="main.py.j2",
+                destination=main_destination,
+                context={},
+            )
+        )
 
-        paths.append(self.generator.generate(
-            template_name="requirements.txt.j2",
-            destination=requirements_destination,
-            context={"orm": orm},
-        ))
+        paths.append(
+            self.generator.generate(
+                template_name="requirements.txt.j2",
+                destination=requirements_destination,
+                context={"orm": orm},
+            )
+        )
 
         paths.append(regenerate_router_registry())
 
@@ -77,8 +88,11 @@ class ApplicationGenerator:
                 paths.append(init_file)
 
         if orm == "sqlalchemy":
-            from fastisan.generators.migration.alembic import generate_migration_foundation
+            from fastisan.generators.migration.alembic import (
+                generate_migration_foundation,
+            )
             from fastisan.generators.model_registry import regenerate_model_registry
+
             paths.extend(generate_migration_foundation(orm))
             paths.append(regenerate_model_registry())
 

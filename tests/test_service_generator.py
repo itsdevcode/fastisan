@@ -45,7 +45,9 @@ def test_service_generator_creates_service_with_schema(
     assert "async def detail(self, id: int) -> UserResponse | None:" in content
     assert "async def create(self, data: UserCreate) -> UserResponse:" in content
     assert "raise NotImplementedError" in content
-    assert "from app.schemas.user import UserCreate, UserResponse, UserUpdate" in content
+    assert (
+        "from app.schemas.user import UserCreate, UserResponse, UserUpdate" in content
+    )
 
 
 def test_service_generator_creates_service_with_schema_and_repository(
@@ -76,6 +78,7 @@ def test_service_generator_creates_service_with_schema_and_repository(
     assert "**data.model_dump(exclude_unset=True)," in content
     assert "raise NotImplementedError" not in content
 
+
 def test_service_generator_normalizes_name(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -105,16 +108,18 @@ def test_service_generator_does_not_overwrite_existing_file(
     with pytest.raises(FileExistsError):
         _ = generator.generate("User")
 
-import sys
-import importlib.util
 
 import asyncio
+import importlib.util
+import sys
+
 
 def test_generated_service_behavior(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     asyncio.run(_test_generated_service_behavior(tmp_path, monkeypatch))
+
 
 async def _test_generated_service_behavior(
     tmp_path: Path,
@@ -184,13 +189,16 @@ class UserRepository:
             class DBUser:
                 id = 1
                 name = "test"
+
             return [DBUser()]
 
         async def detail(self, id: int):
             if id == 1:
+
                 class DBUser:
                     id = 1
                     name = "test"
+
                 return DBUser()
             return None
 
@@ -198,6 +206,7 @@ class UserRepository:
             class DBUser:
                 id = 1
                 name = kwargs.get("name")
+
             return DBUser()
 
         async def update(self, obj, **kwargs):
@@ -226,6 +235,7 @@ class UserRepository:
 
     # Test create
     from app.schemas.user import UserCreate, UserUpdate
+
     create_data = UserCreate(name="new")
     create_res = await service.create(create_data)
     assert create_res.id == 1
@@ -279,7 +289,10 @@ def test_service_generator_formatting(
     assert schema_content.endswith("\n")
     assert not schema_content.endswith("\n\n")
     assert "\n\n\n\n" not in schema_content
-    assert "from app.schemas.user import UserCreate, UserResponse, UserUpdate\n\n\nclass UserService:" in schema_content
+    assert (
+        "from app.schemas.user import UserCreate, UserResponse, UserUpdate\n\n\nclass UserService:"
+        in schema_content
+    )
 
     # 3. Service with schema and repository
     repos_dir = tmp_path / "app" / "repositories"
@@ -294,4 +307,7 @@ def test_service_generator_formatting(
     assert full_content.endswith("\n")
     assert not full_content.endswith("\n\n")
     assert "\n\n\n\n" not in full_content
-    assert "from app.schemas.user import UserCreate, UserResponse, UserUpdate\n\n\nclass UserService:" in full_content
+    assert (
+        "from app.schemas.user import UserCreate, UserResponse, UserUpdate\n\n\nclass UserService:"
+        in full_content
+    )

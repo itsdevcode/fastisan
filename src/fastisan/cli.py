@@ -1,21 +1,23 @@
 from pathlib import Path
 from typing import cast
+
 import typer
+
 from fastisan.config.project import (
     create_project_config,
     get_config_path,
     read_project_config,
 )
 from fastisan.generators.application import ApplicationGenerator
-from fastisan.generators.registry import regenerate_router_registry
+from fastisan.generators.middleware import generate_middleware
 from fastisan.generators.model.factory import generate_model
 from fastisan.generators.model_registry import regenerate_model_registry
+from fastisan.generators.registry import regenerate_router_registry
+from fastisan.generators.repository import generate_repository
+from fastisan.generators.resource import generate_resource
 from fastisan.generators.router import generate_router
 from fastisan.generators.schema import generate_schema
 from fastisan.generators.service import generate_service
-from fastisan.generators.repository import generate_repository
-from fastisan.generators.middleware import generate_middleware
-from fastisan.generators.resource import generate_resource
 from fastisan.specs import ResourceSpec, parse_fields
 
 app = typer.Typer()
@@ -23,6 +25,7 @@ ORM_OPTIONS = {
     "1": "sqlalchemy",
     "2": "none",
 }
+
 
 @app.command("init")
 def init_project() -> None:
@@ -71,10 +74,11 @@ def init_project() -> None:
         typer.echo("       alembic revision --autogenerate -m 'initial'")
         typer.echo("       alembic upgrade head")
 
+
 @app.callback()
 def main() -> None:
     """Fastisan - CLI for FastAPI development."""
-    pass
+
 
 @app.command("make:router")
 def make_router(name: str) -> None:
@@ -90,6 +94,7 @@ def make_router(name: str) -> None:
         _ = regenerate_router_registry()
 
     typer.echo(f"Router created: {file_path}")
+
 
 @app.command("make:model")
 def make_model(name: str) -> None:
@@ -158,7 +163,9 @@ def make_middleware(name: str) -> None:
 @app.command("make:resource")
 def make_resource(
     name: str,
-    fields: str = typer.Option("", help="Comma-separated field definitions (e.g. 'name:str,age:int?')"),
+    fields: str = typer.Option(
+        "", help="Comma-separated field definitions (e.g. 'name:str,age:int?')"
+    ),
 ) -> None:
     """Create a complete FastAPI resource scaffold."""
     try:
@@ -185,4 +192,3 @@ def make_resource(
 
     for path in paths:
         typer.echo(f"Created: {path}")
-

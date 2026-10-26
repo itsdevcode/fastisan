@@ -5,7 +5,9 @@ import pytest
 from fastisan.generators.schema import SchemaGenerator
 
 
-def test_schema_generator_creates_schema(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_schema_generator_creates_schema(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     generator = SchemaGenerator()
@@ -71,10 +73,14 @@ def test_schema_generator_formatting_empty_and_populated(
     assert not empty_content.endswith("\n\n")
     assert "\n\n\n\n" not in empty_content
 
-    assert "from datetime import datetime\nfrom pydantic import BaseModel, ConfigDict\n\n\nclass UserBase(BaseModel):\n    pass\n\n\nclass UserCreate(UserBase):\n    pass\n\n\nclass UserUpdate(BaseModel):\n    pass\n\n\nclass UserResponse(UserBase):" in empty_content
+    assert (
+        "from datetime import datetime\nfrom pydantic import BaseModel, ConfigDict\n\n\nclass UserBase(BaseModel):\n    pass\n\n\nclass UserCreate(UserBase):\n    pass\n\n\nclass UserUpdate(BaseModel):\n    pass\n\n\nclass UserResponse(UserBase):"
+        in empty_content
+    )
 
     # 2. Populated fields schema
     from fastisan.specs import parse_fields
+
     fields = parse_fields("name:str,age:int?")
 
     # Remove previous to generate populated
@@ -87,6 +93,12 @@ def test_schema_generator_formatting_empty_and_populated(
     assert "\n\n\n\n" not in pop_content
 
     # Fields inside UserBase are consecutive
-    assert "class UserBase(BaseModel):\n    name: str\n    age: int | None = None\n\n\nclass UserCreate(UserBase):" in pop_content
+    assert (
+        "class UserBase(BaseModel):\n    name: str\n    age: int | None = None\n\n\nclass UserCreate(UserBase):"
+        in pop_content
+    )
     # Fields inside UserUpdate are consecutive
-    assert "class UserUpdate(BaseModel):\n    name: str | None = None\n    age: int | None = None\n\n\nclass UserResponse(UserBase):" in pop_content
+    assert (
+        "class UserUpdate(BaseModel):\n    name: str | None = None\n    age: int | None = None\n\n\nclass UserResponse(UserBase):"
+        in pop_content
+    )

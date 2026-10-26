@@ -48,6 +48,7 @@ def test_generate_model_rejects_unsupported_orm() -> None:
     with pytest.raises(ValueError, match="Unsupported ORM"):
         _ = generate_model("User", "django")
 
+
 def test_generate_sqlalchemy_model_normalizes_class_name(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -79,11 +80,20 @@ def test_generate_sqlalchemy_model_formatting(
     assert "\n\n\n\n" not in content
 
     # Clean consecutive fields without spurious blank lines
-    assert "\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    created_at: Mapped[datetime]" in content
-    assert "\n    created_at: Mapped[datetime] = mapped_column(\n        DateTime, server_default=func.now()\n    )\n    updated_at: Mapped[datetime]" in content
+    assert (
+        "\n    id: Mapped[int] = mapped_column(Integer, primary_key=True)\n    created_at: Mapped[datetime]"
+        in content
+    )
+    assert (
+        "\n    created_at: Mapped[datetime] = mapped_column(\n        DateTime, server_default=func.now()\n    )\n    updated_at: Mapped[datetime]"
+        in content
+    )
 
     # Clean import grouping
-    assert "from datetime import datetime\n\nfrom sqlalchemy import DateTime, Integer, func\nfrom sqlalchemy.orm import Mapped, mapped_column\n\nfrom app.db.base import Base\n\n\nclass User(Base):" in content
+    assert (
+        "from datetime import datetime\n\nfrom sqlalchemy import DateTime, Integer, func\nfrom sqlalchemy.orm import Mapped, mapped_column\n\nfrom app.db.base import Base\n\n\nclass User(Base):"
+        in content
+    )
 
 
 def test_generate_sqlalchemy_model_with_fields_formatting(

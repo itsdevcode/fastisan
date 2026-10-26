@@ -14,7 +14,8 @@ class SQLAlchemyDatabaseGenerator:
         deps_destination = db_dir / "deps.py"
 
         conflicts = [
-            p for p in (base_destination, session_destination, deps_destination)
+            p
+            for p in (base_destination, session_destination, deps_destination)
             if p.exists()
         ]
         if conflicts:
@@ -24,22 +25,28 @@ class SQLAlchemyDatabaseGenerator:
             )
 
         paths: list[Path] = []
-        paths.append(self.generator.generate(
-            template_name="database/sqlalchemy_base.py.j2",
-            destination=base_destination,
-            context={},
-        ))
+        paths.append(
+            self.generator.generate(
+                template_name="database/sqlalchemy_base.py.j2",
+                destination=base_destination,
+                context={},
+            )
+        )
 
-        paths.append(self.generator.generate(
-            template_name="database/sqlalchemy_session.py.j2",
-            destination=session_destination,
-            context={},
-        ))
+        paths.append(
+            self.generator.generate(
+                template_name="database/sqlalchemy_session.py.j2",
+                destination=session_destination,
+                context={},
+            )
+        )
 
-        paths.append(self.generator.generate(
-            template_name="database/sqlalchemy_deps.py.j2",
-            destination=deps_destination,
-            context={},
-        ))
+        paths.append(
+            self.generator.generate(
+                template_name="database/sqlalchemy_deps.py.j2",
+                destination=deps_destination,
+                context={},
+            )
+        )
 
         return paths
