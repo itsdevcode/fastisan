@@ -1,5 +1,5 @@
-{% if schema_exists and service_exists %}
-{% if repository_exists and session_exists %}
+{% if schema_exists and service_exists -%}
+{% if repository_exists and session_exists -%}
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,7 +20,7 @@ def get_{{ snake_name }}_service(
 ) -> {{ name }}Service:
     repository = {{ name }}Repository(session)
     return {{ name }}Service(repository)
-{% else %}
+{% else -%}
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.schemas.{{ snake_name }} import {{ name }}Create, {{ name }}Response, {{ name }}Update
@@ -37,7 +37,7 @@ def get_{{ snake_name }}_service() -> {{ name }}Service:
     raise NotImplementedError(
         "Configure the {{ name }}Service dependency with a repository instance."
     )
-{% endif %}
+{% endif -%}
 
 
 @router.get("/", response_model=list[{{ name }}Response])
@@ -107,7 +107,7 @@ async def delete_{{ snake_name }}(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="{{ name }} not found",
         )
-{% else %}
+{% else -%}
 from fastapi import APIRouter
 
 
@@ -120,4 +120,4 @@ router = APIRouter(
 @router.get("/")
 async def index():
     return {"message": "{{ name }} router"}
-{% endif %}
+{% endif -%}

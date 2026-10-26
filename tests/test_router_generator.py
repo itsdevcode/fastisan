@@ -130,3 +130,45 @@ def test_generate_router_does_not_overwrite(
     _ = generate_router("User")
     with pytest.raises(FileExistsError):
         _ = generate_router("User")
+
+
+def test_generate_router_formatting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    # 1. Minimal router
+    min_file = generate_router("User")
+    min_content = min_file.read_text(encoding="utf-8")
+
+    assert min_content.startswith("from fastapi import APIRouter")
+    assert min_content.endswith("\n")
+    assert not min_content.endswith("\n\n")
+    assert "\n\n\n\n" not in min_content
+
+    # 2. Full CRUD router
+    app_dir = tmp_path / "app"
+    schemas_dir = app_dir / "schemas"
+    schemas_dir.mkdir(parents=True, exist_ok=True)
+    (schemas_dir / "user.py").touch()
+
+    services_dir = app_dir / "services"
+    services_dir.mkdir(parents=True, exist_ok=True)
+    (services_dir / "user.py").touch()
+
+    repos_dir = app_dir / "repositories"
+    repos_dir.mkdir(parents=True, exist_ok=True)
+    (repos_dir / "user.py").touch()
+
+    db_dir = app_dir / "db"
+    db_dir.mkdir(parents=True, exist_ok=True)
+    (db_dir / "session.py").touch()
+
+    min_file.unlink()
+    full_file = generate_router("User")
+    full_content = full_file.read_text(encoding="utf-8")
+
+    assert full_content.startswith("from fastapi import APIRouter, Depends, HTTPException, status")
+    assert full_content.endswith("\n")
+    assert not full_content.endswith("\n\n")
+    assert "\n\n\n\n" not in full_content
