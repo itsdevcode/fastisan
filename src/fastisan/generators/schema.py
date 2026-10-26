@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from fastisan.generators.base import BaseGenerator
-from fastisan.utils.naming import to_pascal_case, to_snake_case
 from fastisan.specs import FieldSpec
+from fastisan.utils.naming import to_pascal_case, to_snake_case
 
 
 class SchemaGenerator:
@@ -20,11 +20,13 @@ class SchemaGenerator:
 
         mapped_fields = []
         for field in fields:
-            mapped_fields.append({
-                "name": field.name,
-                "python_type": field.type,
-                "nullable": field.nullable,
-            })
+            mapped_fields.append(
+                {
+                    "name": field.name,
+                    "python_type": field.type,
+                    "nullable": field.nullable,
+                }
+            )
 
         return self.generator.generate(
             template_name="schema.py.j2",

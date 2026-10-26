@@ -5,7 +5,6 @@ from typer.testing import CliRunner
 
 from fastisan.cli import app
 
-
 runner = CliRunner()
 
 
@@ -27,9 +26,7 @@ def test_init_command(
     config_path = tmp_path / "fastisan.toml"
 
     assert config_path.exists()
-    assert 'orm = "sqlalchemy"' in config_path.read_text(
-        encoding="utf-8"
-    )
+    assert 'orm = "sqlalchemy"' in config_path.read_text(encoding="utf-8")
     base_path = tmp_path / "app" / "db" / "base.py"
 
     assert base_path.exists()
@@ -63,13 +60,28 @@ def test_init_command(
     assert registry_path.exists()
     assert "router = APIRouter()" in registry_path.read_text(encoding="utf-8")
 
-    for pkg in ["", "models", "schemas", "repositories", "services", "routers", "db", "core"]:
-        pkg_init = tmp_path / "app" / pkg / "__init__.py" if pkg else tmp_path / "app" / "__init__.py"
+    for pkg in [
+        "",
+        "models",
+        "schemas",
+        "repositories",
+        "services",
+        "routers",
+        "db",
+        "core",
+    ]:
+        pkg_init = (
+            tmp_path / "app" / pkg / "__init__.py"
+            if pkg
+            else tmp_path / "app" / "__init__.py"
+        )
         assert pkg_init.exists()
 
     alembic_ini_path = tmp_path / "alembic.ini"
     assert alembic_ini_path.exists()
-    assert "script_location = migrations" in alembic_ini_path.read_text(encoding="utf-8")
+    assert "script_location = migrations" in alembic_ini_path.read_text(
+        encoding="utf-8"
+    )
 
     env_path = tmp_path / "migrations" / "env.py"
     assert env_path.exists()
@@ -123,6 +135,7 @@ def test_init_command_does_not_overwrite(
     assert second_result.exit_code == 1
     assert "already initialized" in second_result.output
 
+
 def test_init_command_preflight_core_config_conflict(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -139,6 +152,7 @@ def test_init_command_preflight_core_config_conflict(
 
     assert not (tmp_path / "fastisan.toml").exists()
     assert not (tmp_path / "app" / "main.py").exists()
+
 
 def test_init_command_preflight_db_session_conflict(
     tmp_path: Path,
@@ -158,6 +172,7 @@ def test_init_command_preflight_db_session_conflict(
     assert not (tmp_path / "app" / "main.py").exists()
     assert not (tmp_path / "alembic.ini").exists()
 
+
 def test_init_command_preflight_script_mako_conflict(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -176,6 +191,7 @@ def test_init_command_preflight_script_mako_conflict(
     assert not (tmp_path / "app" / "main.py").exists()
     assert not (tmp_path / "alembic.ini").exists()
 
+
 def test_init_command_preflight_model_registry_conflict(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -193,6 +209,7 @@ def test_init_command_preflight_model_registry_conflict(
     assert not (tmp_path / "fastisan.toml").exists()
     assert not (tmp_path / "alembic.ini").exists()
 
+
 def test_init_without_orm_ignores_alembic_conflict(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -203,6 +220,7 @@ def test_init_without_orm_ignores_alembic_conflict(
     result = runner.invoke(app, ["init"], input="2\n")
     assert result.exit_code == 0
     assert (tmp_path / "fastisan.toml").exists()
+
 
 def test_make_router_command(
     tmp_path: Path,
@@ -226,6 +244,7 @@ def test_make_router_command(
     assert "from app.routers.user import router as user_router" in registry_content
     assert "router.include_router(user_router)" in registry_content
 
+
 def test_make_router_command_uninitialized(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -242,6 +261,7 @@ def test_make_router_command_uninitialized(
 
     registry_path = tmp_path / "app" / "routers" / "registry.py"
     assert not registry_path.exists()
+
 
 def test_make_model_command(
     tmp_path: Path,
@@ -294,6 +314,7 @@ def test_make_model_rejects_project_without_orm(
     assert result.exit_code == 1
     assert "requires an ORM" in result.output
 
+
 def test_init_without_orm_does_not_create_database_foundation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -311,6 +332,7 @@ def test_init_without_orm_does_not_create_database_foundation(
     assert not (tmp_path / "alembic.ini").exists()
     assert not (tmp_path / "migrations" / "env.py").exists()
     assert not (tmp_path / "app" / "models" / "registry.py").exists()
+
 
 def test_make_schema_command(
     tmp_path: Path,
@@ -332,6 +354,7 @@ def test_make_schema_command(
     assert "class UserCreate(UserBase):" in content
     assert "class UserUpdate(BaseModel):" in content
     assert "class UserResponse(UserBase):" in content
+
 
 def test_make_schema_command_does_not_overwrite(
     tmp_path: Path,

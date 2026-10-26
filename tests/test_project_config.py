@@ -20,8 +20,7 @@ def test_create_project_config(
     assert config_path.exists()
 
     assert config_path.read_text(encoding="utf-8") == (
-        '[project]\n'
-        'orm = "sqlalchemy"\n'
+        '[project]\norm = "sqlalchemy"\n'
     )
 
 
@@ -36,9 +35,7 @@ def test_project_config_does_not_overwrite(
     with pytest.raises(FileExistsError):
         _ = create_project_config("none")
 
-    content = (tmp_path / "fastisan.toml").read_text(
-        encoding="utf-8"
-    )
+    content = (tmp_path / "fastisan.toml").read_text(encoding="utf-8")
 
     assert 'orm = "sqlalchemy"' in content
 

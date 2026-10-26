@@ -1,9 +1,12 @@
-import pytest
 from pathlib import Path
+
+import pytest
 from typer.testing import CliRunner
+
 from fastisan.cli import app
 
 runner = CliRunner()
+
 
 def test_make_resource_with_fields(
     tmp_path: Path,
@@ -15,9 +18,14 @@ def test_make_resource_with_fields(
 
     result = runner.invoke(
         app,
-        ["make:resource", "User", "--fields", "name:str,email:str,age:int?,is_active:bool"]
+        [
+            "make:resource",
+            "User",
+            "--fields",
+            "name:str,email:str,age:int?,is_active:bool",
+        ],
     )
-    
+
     assert result.exit_code == 0
     assert "Resource created: User" in result.stdout
 
@@ -30,9 +38,18 @@ def test_make_resource_with_fields(
     model_content = model_path.read_text(encoding="utf-8")
     assert "name: Mapped[str] = mapped_column(String, nullable=False)" in model_content
     assert "email: Mapped[str] = mapped_column(String, nullable=False)" in model_content
-    assert "age: Mapped[int | None] = mapped_column(Integer, nullable=True)" in model_content
-    assert "is_active: Mapped[bool] = mapped_column(Boolean, nullable=False)" in model_content
-    assert "from sqlalchemy import Boolean, DateTime, Integer, String, func" in model_content
+    assert (
+        "age: Mapped[int | None] = mapped_column(Integer, nullable=True)"
+        in model_content
+    )
+    assert (
+        "is_active: Mapped[bool] = mapped_column(Boolean, nullable=False)"
+        in model_content
+    )
+    assert (
+        "from sqlalchemy import Boolean, DateTime, Integer, String, func"
+        in model_content
+    )
 
     schema_content = schema_path.read_text(encoding="utf-8")
     assert "name: str" in schema_content
@@ -41,6 +58,7 @@ def test_make_resource_with_fields(
     assert "is_active: bool" in schema_content
     assert "is_active: bool | None = None" in schema_content
 
+
 def test_make_resource_with_invalid_fields(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -48,11 +66,8 @@ def test_make_resource_with_invalid_fields(
     monkeypatch.chdir(tmp_path)
     _ = runner.invoke(app, ["init"], input="1\n")
 
-    result = runner.invoke(
-        app,
-        ["make:resource", "User", "--fields", "price:decimal"]
-    )
-    
+    result = runner.invoke(app, ["make:resource", "User", "--fields", "price:decimal"])
+
     assert result.exit_code == 1
     assert "Unsupported field type: decimal" in result.output
     assert not (tmp_path / "app" / "models" / "user.py").exists()

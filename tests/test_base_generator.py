@@ -30,13 +30,7 @@ def test_generate_creates_file(tmp_path: Path) -> None:
 def test_generate_creates_parent_directories(tmp_path: Path) -> None:
     generator = BaseGenerator()
 
-    destination = (
-        tmp_path
-        / "some"
-        / "nested"
-        / "directory"
-        / "user.py"
-    )
+    destination = tmp_path / "some" / "nested" / "directory" / "user.py"
 
     _ = generator.generate(
         template_name="router.py.j2",

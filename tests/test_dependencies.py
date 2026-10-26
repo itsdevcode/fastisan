@@ -71,7 +71,9 @@ def test_init_none_excludes_orm_dependencies(
         "pydantic-settings",
     ]
     for dep in excluded_deps:
-        assert dep not in content, f"Expected {dep} to be excluded from requirements.txt"
+        assert dep not in content, (
+            f"Expected {dep} to be excluded from requirements.txt"
+        )
 
 
 def test_init_preflight_protects_existing_requirements_txt(
@@ -143,6 +145,7 @@ def test_generated_requirements_valid_pep508_syntax(
         for p in tmp_path.iterdir():
             if p.is_dir():
                 import shutil
+
                 shutil.rmtree(p)
             else:
                 p.unlink()
@@ -153,7 +156,11 @@ def test_generated_requirements_valid_pep508_syntax(
         req_file = tmp_path / "requirements.txt"
         assert req_file.exists()
 
-        lines = [line.strip() for line in req_file.read_text(encoding="utf-8").splitlines() if line.strip()]
+        lines = [
+            line.strip()
+            for line in req_file.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
         assert len(lines) >= 3
 
         for line in lines:

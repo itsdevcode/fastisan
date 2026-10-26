@@ -9,16 +9,13 @@ def generate_router(name: str) -> Path:
     snake_name = to_snake_case(class_name)
     plural_snake_name = to_table_name(class_name)
 
-    destination = (
-        Path.cwd()
-        / "app"
-        / "routers"
-        / f"{snake_name}.py"
-    )
+    destination = Path.cwd() / "app" / "routers" / f"{snake_name}.py"
 
     schema_exists = (Path.cwd() / "app" / "schemas" / f"{snake_name}.py").exists()
     service_exists = (Path.cwd() / "app" / "services" / f"{snake_name}.py").exists()
-    repository_exists = (Path.cwd() / "app" / "repositories" / f"{snake_name}.py").exists()
+    repository_exists = (
+        Path.cwd() / "app" / "repositories" / f"{snake_name}.py"
+    ).exists()
     session_exists = (Path.cwd() / "app" / "db" / "session.py").exists()
 
     generator = BaseGenerator()

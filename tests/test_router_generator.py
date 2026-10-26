@@ -71,7 +71,9 @@ def test_generate_router_schema_and_service(
     content = file_path.read_text(encoding="utf-8")
 
     assert "from app.services.user import UserService" in content
-    assert "from app.schemas.user import UserCreate, UserResponse, UserUpdate" in content
+    assert (
+        "from app.schemas.user import UserCreate, UserResponse, UserUpdate" in content
+    )
     assert "def get_user_service() -> UserService:" in content
     assert "raise NotImplementedError" in content
     assert "async def list_users(" in content
@@ -168,7 +170,9 @@ def test_generate_router_formatting(
     full_file = generate_router("User")
     full_content = full_file.read_text(encoding="utf-8")
 
-    assert full_content.startswith("from fastapi import APIRouter, Depends, HTTPException, status")
+    assert full_content.startswith(
+        "from fastapi import APIRouter, Depends, HTTPException, status"
+    )
     assert full_content.endswith("\n")
     assert not full_content.endswith("\n\n")
     assert "\n\n\n\n" not in full_content

@@ -1,7 +1,6 @@
 import keyword
 from dataclasses import dataclass
 
-
 SUPPORTED_TYPES = {"str", "int", "float", "bool", "datetime"}
 RESERVED_NAMES = {"id", "created_at", "updated_at"}
 
