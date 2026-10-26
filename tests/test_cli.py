@@ -84,6 +84,17 @@ def test_init_command(
     model_registry_path = tmp_path / "app" / "models" / "registry.py"
     assert model_registry_path.exists()
 
+    requirements_path = tmp_path / "requirements.txt"
+    assert requirements_path.exists()
+    requirements_content = requirements_path.read_text(encoding="utf-8")
+    assert "fastapi" in requirements_content
+    assert "uvicorn" in requirements_content
+    assert "pydantic" in requirements_content
+    assert "sqlalchemy[asyncio]" in requirements_content
+    assert "asyncpg" in requirements_content
+    assert "alembic" in requirements_content
+    assert "pydantic-settings" in requirements_content
+
 
 def test_init_command_does_not_overwrite(
     tmp_path: Path,

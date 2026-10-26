@@ -60,6 +60,16 @@ def init_project() -> None:
         raise typer.Exit(code=1)
 
     typer.echo(f"Fastisan initialized: {config_path}")
+    typer.echo("")
+    typer.echo("Next steps:")
+    typer.echo("  1. Install runtime dependencies:")
+    typer.echo("       pip install -r requirements.txt")
+    if orm == "sqlalchemy":
+        typer.echo("  2. Configure your database:")
+        typer.echo("       cp .env.example .env  # then configure DATABASE_URL")
+        typer.echo("  3. Run your first migration:")
+        typer.echo("       alembic revision --autogenerate -m 'initial'")
+        typer.echo("       alembic upgrade head")
 
 @app.callback()
 def main() -> None:

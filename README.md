@@ -44,10 +44,13 @@ Initialize a new Fastisan project and generate your first complete CRUD resource
 ```bash
 mkdir my-api && cd my-api
 
-# 1. Initialize the FastAPI foundation (database, alembic, core files)
+# 1. Initialize the FastAPI foundation (database, alembic, core files, requirements.txt)
 fastisan init
 
-# 2. Scaffold a complete User resource with specific fields
+# 2. Install the generated application dependencies
+pip install -r requirements.txt
+
+# 3. Scaffold a complete User resource with specific fields
 fastisan make:resource User \
   --fields "name:str,email:str,age:int?"
 ```
@@ -96,7 +99,7 @@ app/
 
 | Command | Generates | Description |
 |---|---|---|
-| `fastisan init` | Application foundation | Sets up FastAPI, SQLAlchemy db config, Alembic migrations, and directory structure. |
+| `fastisan init` | Application foundation | Sets up FastAPI, runtime dependencies (`requirements.txt`), SQLAlchemy db config, Alembic migrations, and directory structure. |
 | `make:model` | SQLAlchemy model | Creates a SQLAlchemy declarative model. |
 | `make:schema` | Pydantic schemas | Scaffolds Create, Update, and Response schemas for validation. |
 | `make:repository` | Async repository | Sets up the data access layer for CRUD operations. |
@@ -139,7 +142,7 @@ Fastisan generates a clean, layered architectural pattern, keeping your codebase
 
 Fastisan provides a variety of commands to streamline your workflow. You can view all available commands by running `fastisan --help`. Below are the core commands:
 
-- `fastisan init`: Scaffolds the initial FastAPI project structure.
+- `fastisan init`: Scaffolds the initial FastAPI project structure and dependency manifest (`requirements.txt`).
 - `fastisan make:resource <name>`: Generates a complete API resource (Model, Schema, Repository, Service, Router).
 - `fastisan make:model <name>`: Generates a SQLAlchemy model.
 - `fastisan make:schema <name>`: Generates Pydantic schemas.
@@ -147,6 +150,35 @@ Fastisan provides a variety of commands to streamline your workflow. You can vie
 - `fastisan make:service <name>`: Generates a business logic service layer.
 - `fastisan make:router <name>`: Generates a FastAPI APIRouter.
 - `fastisan make:middleware <name>`: Generates an ASGI middleware.
+
+---
+
+## 📦 Project Dependencies
+
+When you run `fastisan init`, Fastisan generates a `requirements.txt` manifest tailored to the chosen ORM:
+
+- **SQLAlchemy (`1`)**: includes runtime dependencies for the FastAPI app and async database stack:
+  ```text
+  fastapi>=0.110.0
+  uvicorn>=0.30.0
+  pydantic>=2.7.0
+  pydantic-settings>=2.2.0
+  sqlalchemy[asyncio]>=2.0.0
+  alembic>=1.13.0
+  asyncpg>=0.29.0
+  ```
+- **None (`2`)**: includes only core application dependencies without database drivers or ORM libraries:
+  ```text
+  fastapi>=0.110.0
+  uvicorn>=0.30.0
+  pydantic>=2.7.0
+  ```
+
+To install the generated dependencies in your virtual environment:
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
